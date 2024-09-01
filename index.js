@@ -1,5 +1,7 @@
 import { Telegraf } from "telegraf";
+const express = require('express');
 import TelegramBot from "node-telegram-bot-api";
+const app = express();
 
 
 // const bot = new Telegraf("6985905665:AAG3s5jrmX86tP9NCnLtEeyaKX6mGbE-ANw")
@@ -19,6 +21,14 @@ const web_link = "https://main.d2blj32f829es0.amplifyapp.com/"
 //           },
 //     }); 
 // })
+
+app.get('/', (req, res) => {
+  res.send('This is your telegram bot server miniapp.!');
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
 
 bot_new.onText(/\/start/, async(msg) => {
 
