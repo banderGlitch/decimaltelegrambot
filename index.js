@@ -23,7 +23,7 @@ const web_link = "https://main.d2blj32f829es0.amplifyapp.com/"
 // })
 
 app.get('/', (req, res) => {
-  res.send('This is your telegram bot server miniapp.!');
+  res.send('This is your telegram bot server asdasd.!');
 });
 
 app.listen(port, () => {
