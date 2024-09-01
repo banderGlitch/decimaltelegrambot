@@ -3,7 +3,7 @@ name: CICD
 on:
   push:
     branches:
-      - deploy-to-ec2
+      - main
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker Image
-        run: docker build -t banderglitch/telegrambot .
+        run: docker build -t banderglitch/telegrambot . 
 
       - name: Publish image to Docker Hub
         run: docker push banderglitch/telegrambot:latest   
