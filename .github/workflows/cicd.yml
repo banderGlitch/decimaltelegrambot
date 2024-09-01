@@ -30,11 +30,16 @@ jobs:
           echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
           echo "EC2_USER: ${{ secrets.EC2_USER }}"
           echo "PORT: 22"
-          echo "EC2_SSH_KEY is set"  # Just to confirm the key is present, not printing the key itself
+          echo "EC2_SSH_KEY is set"
+
+      - name: Write SSH Key to a File
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
 
       - name: Test SSH Connection String
         run: |
-          ssh -i <(echo "${{ secrets.EC2_SSH_KEY }}") -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} -p 22 echo "SSH connection established"
+          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} -p 22 echo "SSH connection established"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
@@ -48,3 +53,8 @@ jobs:
             docker pull banderglitch/telegrambot:latest
             docker rm -f nodejsContainer || true
             docker run -d -p 80:3000 --name nodejsContainer banderglitch/telegrambot:latest
+
+      - name: Remove SSH Key File
+        run: |
+          rm -f /tmp/ssh_key
+
