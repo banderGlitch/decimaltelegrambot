@@ -1,0 +1,39 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - deploy-to-ec2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: docker build -t banderglitch/telegrambot .
+
+      - name: Publish image to Docker Hub
+        run: docker push banderglitch/telegrambot:latest   
+
+  deploy: 
+    needs: build
+    runs-on: ubuntu-latest   # Change from aws-ec2 to a standard runner or use SSH to connect to your EC2 instance
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker pull banderglitch/telegrambot:latest
+            docker rm -f nodejsContainer || true
+            docker run -d -p 80:3000 --name nodejsContainer banderglitch/telegrambot:latest
