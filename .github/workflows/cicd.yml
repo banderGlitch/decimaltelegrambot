@@ -23,8 +23,8 @@ jobs:
 
   deploy: 
     needs: build
-    runs-on: ubuntu-latest   # Change from aws-ec2 to a standard runner or use SSH to connect to your EC2 instance
-     steps:
+    runs-on: ubuntu-latest   # This is the correct indentation for the jobs level
+    steps:
       - name: Debug EC2_HOST
         run: echo ${{ secrets.EC2_HOST }}
 
@@ -37,6 +37,7 @@ jobs:
           port: 22
           script: |
             echo "Connected successfully to ${{ secrets.EC2_HOST }}"
+
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -49,3 +50,4 @@ jobs:
             docker pull banderglitch/telegrambot:latest
             docker rm -f nodejsContainer || true
             docker run -d -p 80:3000 --name nodejsContainer banderglitch/telegrambot:latest
+
