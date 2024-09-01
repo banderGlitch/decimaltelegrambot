@@ -21,22 +21,20 @@ jobs:
       - name: Publish image to Docker Hub
         run: docker push banderglitch/telegrambot:latest   
 
-  deploy: 
+  deploy:
     needs: build
-    runs-on: ubuntu-latest   # This is the correct indentation for the jobs level
+    runs-on: ubuntu-latest
     steps:
-      - name: Debug EC2_HOST
-        run: echo ${{ secrets.EC2_HOST }}
+      - name: Debugging Secrets
+        run: |
+          echo "EC2_HOST: ${{ secrets.EC2_HOST }}"
+          echo "EC2_USER: ${{ secrets.EC2_USER }}"
+          echo "PORT: 22"
+          echo "EC2_SSH_KEY is set"  # Just to confirm the key is present, not printing the key itself
 
-      - name: Test SSH Connection
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          script: |
-            echo "Connected successfully to ${{ secrets.EC2_HOST }}"
+      - name: Test SSH Connection String
+        run: |
+          ssh -i <(echo "${{ secrets.EC2_SSH_KEY }}") -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} -p 22 echo "SSH connection established"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
@@ -50,4 +48,3 @@ jobs:
             docker pull banderglitch/telegrambot:latest
             docker rm -f nodejsContainer || true
             docker run -d -p 80:3000 --name nodejsContainer banderglitch/telegrambot:latest
-
