@@ -15,7 +15,7 @@ interface CoinParticle {
 const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
-  const isNewUser = useSelector((state: RootState) => state.user.isNewUser);
+  // const isNewUser = useSelector((state: RootState) => state.user.isNewUser);
   const userStatus = useSelector((state: RootState) => state.user.status);
   const [activeNav, setActiveNav] = React.useState('Battle');
   const [coinParticles, setCoinParticles] = React.useState<CoinParticle[]>([]);
