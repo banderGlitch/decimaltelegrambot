@@ -32,7 +32,7 @@ export const registerOrUpdateUser = createAsyncThunk<
 >(
   'user/registerOrUpdate',
   async (userData) => {
-    const response = await axios.post('https://4765-205-254-167-236.ngrok-free.app/api/users/getUser', userData);
+    const response = await axios.post('https://40e4-205-254-167-236.ngrok-free.app/api/users/getUser', userData);
     // Only return the data we need, excluding headers and other non-serializable parts
     return {
       user: response.data.user,
