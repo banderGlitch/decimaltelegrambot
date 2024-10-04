@@ -42,13 +42,41 @@ export const registerOrUpdateUser = createAsyncThunk<
 );
 
 
+
+export const updateCoinsOnServer = createAsyncThunk<
+void,
+void,
+{ state: { user: UserState } }
+>(
+  'user/updateCoins',
+  async (_, { getState, rejectWithValue }) => {
+    const { user } = getState().user;
+    if (!user) {
+      return rejectWithValue('No user found');
+    }
+    try {
+      const response = await axios.post(`https://40e4-205-254-167-236.ngrok-free.app/api/users/updateCoins`, {
+        telegramId: user.telegramId,
+        coins: user.coins
+      });
+      console.log('response----------->', response)
+      // return { coins: response.data.coins };
+    } catch (error) {
+      return rejectWithValue('Failed to update coins on server');
+    }
+  }
+);
+
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     addCoins: (state, action: PayloadAction<number>) => {
+      console.log('addCoins---------------------->', action.payload)
       if (state.user) {
         state.user.coins += action.payload;
+        console.log('state.user.coins---------------------->', state.user.coins)
       }
     },
   },
@@ -65,7 +93,12 @@ const userSlice = createSlice({
       .addCase(registerOrUpdateUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
-      });
+      })
+      // .addCase(updateCoinsOnServer.fulfilled, (state, action) => {
+      //   if (state.user) {
+      //     state.user.coins = action.payload.coins;
+      //   }
+      // });
   },
 });
 
