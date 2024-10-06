@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback , useRef } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from './stores/store';
 import { registerOrUpdateUser, addCoins, updateCoinsOnServer } from './stores/slices/userSlice';
