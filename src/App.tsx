@@ -55,7 +55,7 @@ const App: React.FC = () => {
       }
     };
 
-    const intervalId = setInterval(updateCoins, 10000); // 10 seconds
+    const intervalId = setInterval(updateCoins, 1000); // 10 seconds
     return () => clearInterval(intervalId);
   }, [dispatch, user]);
 
@@ -65,45 +65,8 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  // const handleAppCloseRef = useRef(() => {
-  //   console.log('Telegram Web App is closing');
-  //   dispatch(updateCoinsOnServer());
-  // });
+  
 
-
-  // useEffect(() => {
-  //   handleAppCloseRef.current = () => {
-  //     console.log('Telegram Web App is closing');
-  //     dispatch(updateCoinsOnServer());
-  //   };
-  // }, [dispatch]);
-
-  const handleAppClose = () => {
-    console.log('Telegram Web App is closing');
-    dispatch(updateCoinsOnServer());
-  };
-
-
-
-
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    
-    if (tg) {
-      console.log('Telegram WebApp is available');
-      tg.ready();
-      tg.onEvent('web_app_close', handleAppClose);
-
-      return () => {
-        tg.offEvent('web_app_close', handleAppClose);
-      };
-    } else {
-      console.warn('Telegram WebApp is not available. Are you running this outside of Telegram?');
-    }
-  }, []);
-
-
-  console.log('user------------------->',)
   // window.addEventListener("beforeunload", (ev) => 
   //   {  
   //       ev.preventDefault();
@@ -204,29 +167,6 @@ const App: React.FC = () => {
   if (userStatus === 'failed') {
     return <div>Error loading user data</div>;
   }
-
-
-  // const updateCoinsOnVisibilityChange = useCallback(() => {
-  //   if (document.visibilityState === 'hidden') {
-  //     dispatch(updateCoinsOnServer());
-  //   }
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   console.log('useEffect [updateCoinsOnVisibilityChange] called');
-    
-  //   const handleVisibilityChange = () => {
-  //     if (user && document.visibilityState === 'hidden') {
-  //       updateCoinsOnVisibilityChange();
-  //     }
-  //   };
-
-  //   document.addEventListener('visibilitychange', handleVisibilityChange);
-  //   return () => {
-  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //   };
-  // }, [user, updateCoinsOnVisibilityChange]);
-
 
 
 
