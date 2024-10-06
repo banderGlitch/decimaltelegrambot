@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback  } from 'react';
+import React, { useEffect, useCallback , useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from './stores/store';
 import { registerOrUpdateUser, addCoins, updateCoinsOnServer } from './stores/slices/userSlice';
@@ -65,30 +65,34 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  const handleAppClose = useCallback(() => {
+  const handleAppCloseRef = useRef(() => {
     console.log('Telegram Web App is closing');
     dispatch(updateCoinsOnServer());
+  });
+  
+
+  useEffect(() => {
+    handleAppCloseRef.current = () => {
+      console.log('Telegram Web App is closing');
+      dispatch(updateCoinsOnServer());
+    };
   }, [dispatch]);
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
+    
     if (tg) {
       console.log('Telegram WebApp is available');
       tg.ready();
-      tg.onEvent('web_app_close', handleAppClose);
+      tg.onEvent('web_app_close', handleAppCloseRef.current);
 
       return () => {
-        tg.offEvent('web_app_close', handleAppClose);
+        tg.offEvent('web_app_close', handleAppCloseRef.current);
       };
     } else {
-      console.log('Telegram WebApp is not available');
-      // Fallback behavior for when the app is not running in Telegram
-      window.addEventListener('beforeunload', handleAppClose);
-      return () => {
-        window.removeEventListener('beforeunload', handleAppClose);
-      };
+      console.warn('Telegram WebApp is not available. Are you running this outside of Telegram?');
     }
-  }, [handleAppClose]);
+  }, []);
 
   // window.addEventListener("beforeunload", (ev) => 
   //   {  
