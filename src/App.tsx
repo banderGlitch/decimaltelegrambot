@@ -65,13 +65,37 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
+  const handleAppClose = useCallback(() => {
+    console.log('Telegram Web App is closing');
+    dispatch(updateCoinsOnServer());
+  }, [dispatch]);
 
-  window.addEventListener("beforeunload", (ev) => 
-    {  
-        ev.preventDefault();
-        console.log('browser tab is closed');
-        dispatch(updateCoinsOnServer());
-    });
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      console.log('Telegram WebApp is available');
+      tg.ready();
+      tg.onEvent('web_app_close', handleAppClose);
+
+      return () => {
+        tg.offEvent('web_app_close', handleAppClose);
+      };
+    } else {
+      console.log('Telegram WebApp is not available');
+      // Fallback behavior for when the app is not running in Telegram
+      window.addEventListener('beforeunload', handleAppClose);
+      return () => {
+        window.removeEventListener('beforeunload', handleAppClose);
+      };
+    }
+  }, [handleAppClose]);
+
+  // window.addEventListener("beforeunload", (ev) => 
+  //   {  
+  //       ev.preventDefault();
+  //       console.log('browser tab is closed');
+  //       dispatch(updateCoinsOnServer());
+  //   });
 
 
   useEffect(() => {
