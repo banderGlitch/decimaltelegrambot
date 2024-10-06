@@ -1,4 +1,4 @@
-import React, { useEffect  } from 'react';
+import React, { useEffect, useCallback  } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from './stores/store';
 import { registerOrUpdateUser, addCoins, updateCoinsOnServer } from './stores/slices/userSlice';
@@ -36,20 +36,15 @@ const App: React.FC = () => {
     }
   }, [userStatus, dispatch]);
 
-
   useEffect(() => {
     if (user) {
-      console.log('user-----------------<', user)
+      console.log('user-------------sdfsdfdfs------------------<', user)
       const telegramId = Number(user.telegramId);
       getUserData(telegramId).then(data => {
         dispatch(addCoins(data.coins));
       });
     }
   }, []);
-
-
-
-
 
   useEffect(() => {
     const updateCoins = () => {
@@ -63,6 +58,70 @@ const App: React.FC = () => {
     const intervalId = setInterval(updateCoins, 10000); // 10 seconds
     return () => clearInterval(intervalId);
   }, [dispatch, user]);
+
+  const updateCoinsOnVisibilityChange = useCallback(() => {
+    if (document.visibilityState === 'hidden') {
+      dispatch(updateCoinsOnServer());
+    }
+  }, [dispatch]);
+
+  
+
+  useEffect(() => {
+    console.log('useEffect [updateCoinsOnVisibilityChange] called');
+    
+    const handleVisibilityChange = () => {
+      if (user && document.visibilityState === 'hidden') {
+        updateCoinsOnVisibilityChange();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [ updateCoinsOnVisibilityChange]);
+
+  // useEffect(() => {
+  //   if (userStatus === 'idle') {
+  //     const params = new URLSearchParams(window.location.search);
+  //     const userData = {
+  //       telegramId: params.get('id') || '',
+  //       name: params.get('name') || '',
+  //       username: params.get('username') || '',
+  //       photoUrl: params.get('photo_url') || '',
+  //     };
+  //     dispatch(registerOrUpdateUser(userData));
+  //   }
+  // }, [userStatus, dispatch]);
+
+
+  // useEffect(() => {
+  //   if (user) {
+  //     console.log('user-------------sdfsdfdfs------------------<', user)
+  //     const telegramId = Number(user.telegramId);
+  //     getUserData(telegramId).then(data => {
+  //       dispatch(addCoins(data.coins));
+  //     });
+  //   }
+  // }, []);
+
+
+
+
+
+  // useEffect(() => {
+  //   const updateCoins = () => {
+  //     if (user) {
+  //       dispatch(updateCoinsOnServer());
+  //       console.log('user?.coins--------------->', user?.coins);
+  //       console.log('api hit taken place!!');
+  //     }
+  //   };
+
+  //   const intervalId = setInterval(updateCoins, 10000); // 10 seconds
+  //   return () => clearInterval(intervalId);
+  // }, [dispatch, user]);
 
 
 
@@ -78,7 +137,7 @@ const App: React.FC = () => {
     const y = event.clientY - rect.top;
      // Animation ---------------------//
     console.log('coinIncrement', coinIncrement)
-    dispatch(addCoins(coinIncrement));
+    // dispatch(addCoins(coinIncrement));
     // Animation ---------------------//
     setCoinParticles(prev => [
       ...prev,
@@ -100,6 +159,35 @@ const App: React.FC = () => {
   if (userStatus === 'failed') {
     return <div>Error loading user data</div>;
   }
+
+
+  // const updateCoinsOnVisibilityChange = useCallback(() => {
+  //   if (document.visibilityState === 'hidden') {
+  //     dispatch(updateCoinsOnServer());
+  //   }
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   console.log('useEffect [updateCoinsOnVisibilityChange] called');
+    
+  //   const handleVisibilityChange = () => {
+  //     if (user && document.visibilityState === 'hidden') {
+  //       updateCoinsOnVisibilityChange();
+  //     }
+  //   };
+
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+  //   return () => {
+  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
+  //   };
+  // }, [user, updateCoinsOnVisibilityChange]);
+
+
+
+
+
+
+
   return (
     <div className="bg-black flex justify-center h-screen relative">
       <div 

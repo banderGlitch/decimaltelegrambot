@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = "https://40e4-205-254-167-236.ngrok-free.app";
-// const API_BASE_URL = 'http://localhost:9000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 
 export interface User {
     id: string;
@@ -14,7 +14,7 @@ export interface User {
 
   export const getUserData = async (telegramId: number): Promise<User> => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/users/getUserSpecific/${telegramId}`);
+      const response = await axios.get(`${API_BASE_URL}/api/users/getUserSpecific/${telegramId}`);
       return response.data.user;
     } catch (error) {
       console.error('Error fetching user data:', error);

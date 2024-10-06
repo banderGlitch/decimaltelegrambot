@@ -12,7 +12,6 @@ export interface User {
 
 export interface UserState {
   user: User | null;
-  isNewUser: boolean;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
@@ -20,23 +19,21 @@ export interface UserState {
 
 const initialState: UserState = {
   user: null,
-  isNewUser: false,
   status: 'idle',
   error: null
 };
 
 
 export const registerOrUpdateUser = createAsyncThunk<
-  { user: User; isNewUser: boolean },
+  { user: User;},
   Partial<User>
 >(
   'user/registerOrUpdate',
   async (userData) => {
-    const response = await axios.post('https://40e4-205-254-167-236.ngrok-free.app/api/users/getUser', userData);
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/getUser`, userData);
     // Only return the data we need, excluding headers and other non-serializable parts
     return {
       user: response.data.user,
-      isNewUser: response.data.isNewUser
     };
   }
 );
@@ -55,7 +52,7 @@ void,
       return rejectWithValue('No user found');
     }
     try {
-      const response = await axios.post(`https://40e4-205-254-167-236.ngrok-free.app/api/users/updateCoins`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/updateCoins`, {
         telegramId: user.telegramId,
         coins: user.coins
       });
@@ -88,7 +85,7 @@ const userSlice = createSlice({
       .addCase(registerOrUpdateUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.user = action.payload.user;
-        state.isNewUser = action.payload.isNewUser;
+        // state.isNewUser = action.payload.isNewUser;
       })
       .addCase(registerOrUpdateUser.rejected, (state, action) => {
         state.status = 'failed';
