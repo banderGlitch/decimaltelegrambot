@@ -65,7 +65,7 @@ const App: React.FC = () => {
     }
   }, [dispatch]);
 
-  
+
 
   useEffect(() => {
     console.log('useEffect [updateCoinsOnVisibilityChange] called');
@@ -137,7 +137,7 @@ const App: React.FC = () => {
     const y = event.clientY - rect.top;
      // Animation ---------------------//
     console.log('coinIncrement', coinIncrement)
-    // dispatch(addCoins(coinIncrement));
+    dispatch(addCoins(coinIncrement));
     // Animation ---------------------//
     setCoinParticles(prev => [
       ...prev,
