@@ -61,7 +61,7 @@ const App: React.FC = () => {
       }
     };
 
-    const intervalId = setInterval(updateCoins, 20000); // 10 seconds
+    const intervalId = setInterval(updateCoins, 1000); // 10 seconds
     return () => clearInterval(intervalId);
   }, [dispatch, user]);
 
