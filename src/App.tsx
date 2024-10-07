@@ -73,6 +73,13 @@ const App: React.FC = () => {
   //       console.log('browser tab is closed');
   //       dispatch(updateCoinsOnServer());
   //   });
+    // window.addEventListener("beforeunload", (ev) => 
+  //   {  
+  //       ev.preventDefault();
+  //       console.log('browser tab is closed');
+  //       dispatch(updateCoinsOnServer());
+  //   });
+
 
 
   useEffect(() => {
