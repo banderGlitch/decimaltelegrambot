@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from './stores/store';
 import { registerOrUpdateUser, addCoins, updateCoinsOnServer } from './stores/slices/userSlice';
@@ -24,9 +24,9 @@ const App: React.FC = () => {
   const [strength, setStrength] = useState(0)
   const [tapCount, setTapCount] = useState(0);
   const [isTapping, setIsTapping] = useState(false);
-  
-  const coinIncrement = 1; // Set this to your desired increment
+  const [coinIncrement, setCoinIncrement] = useState(1);
 
+  
   useEffect(() => {
     if (userStatus === 'idle') {
       const params = new URLSearchParams(window.location.search);
@@ -41,7 +41,6 @@ const App: React.FC = () => {
   }, [userStatus, dispatch]);
 
 
-// sasdasasd
   useEffect(() => {
     if (user) {
       console.log('user-----------------------------<', user)
@@ -52,14 +51,26 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const previousCoinsRef = useRef(user?.coins);
+
   useEffect(() => {
     const updateCoins = () => {
-      if (user) {
+      if (user && user.coins !== previousCoinsRef.current) {
         dispatch(updateCoinsOnServer());
         console.log('user?.coins--------------->', user?.coins);
         console.log('api hit taken place!!');
+        previousCoinsRef.current = user.coins;
+      } else {
+        console.log('Coins unchanged, skipping API call');
       }
     };
+    // const updateCoins = () => {
+    //   if (user) {
+    //     dispatch(updateCoinsOnServer());
+    //     console.log('user?.coins--------------->', user?.coins);
+    //     console.log('api hit taken place!!');
+    //   }
+    // };
 
     const intervalId = setInterval(updateCoins, 1000); // 10 seconds
     return () => clearInterval(intervalId);
@@ -90,13 +101,27 @@ const App: React.FC = () => {
   }, [ updateCoinsOnVisibilityChange]);
 
 
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setStrength(prev => Math.max(0, prev - 1000));
+  //   }, 4);
+
+  //   return () => clearInterval(timer);
+  // }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setStrength(prev => Math.max(0, prev - 1));
-    }, 1000);
+      setStrength(prev => {
+        const newStrength = Math.max(0, prev - 5);
+        if (newStrength < 90 && coinIncrement === 2) {
+          setCoinIncrement(1);
+        }
+        return newStrength;
+      });
+    }, 300);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [coinIncrement]);
 
 
 
@@ -126,12 +151,22 @@ const App: React.FC = () => {
     ]);
     setParticleCounter(prevCounter => prevCounter + 1);
 
+    setStrength(prev => {
+      const newStrength = Math.min(100, prev + 10);
+      if (newStrength >= 90 && coinIncrement === 1) {
+        setCoinIncrement(2);
+        console.log('coinIncrement', coinIncrement)
+      }
+      return newStrength;
+    });
+
     // Toggle strength bar visibility
     setShowStrength(!showStrength);
 
     // Simulate strength increase (you can adjust this logic as needed)
     // setStrength(prevStrength => Math.min(prevStrength + 5, 100));
     setTapCount(prev => prev + 1);
+
     setIsTapping(true);
     if (tapCount % 5 === 4) {
       setStrength(prev => Math.min(100, prev + 10));
