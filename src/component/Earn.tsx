@@ -1,5 +1,7 @@
 import React , { useEffect , useState } from 'react';
-import { getTasks } from '../services/api';
+import { useDispatch } from 'react-redux';
+import { getTasks , updateTaskStatus } from '../services/api';
+import { addCoins } from '../stores/slices/userSlice';
 
 
 interface Task {
@@ -15,41 +17,52 @@ interface Task {
 
 
 const Earn: React.FC = () => {
-
+     
     const [tasks, setTasks] = useState<Task[]>([]);
+    const dispatch = useDispatch();
 //   const [loading, setLoading] = useState<boolean>(true);
 //   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const fetchedTasks = await getTasks();
-        setTasks(fetchedTasks);  // Ensure fetchedTasks is of type Task[]
-        console.log('tasks-------------->', fetchedTasks);
-      } catch (err) {
-        // setError('Error fetching tasks');
-        console.error('Error fetching tasks:', err);
-      } finally {
-        // setLoading(false);
-      }
-    };
+const fetchTasks = async () => {
+    try {
+      const fetchedTasks = await getTasks();
+      setTasks(fetchedTasks);
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+    }
+  };
 
+  useEffect(() => {
     fetchTasks();
   }, []);
 
-  const getIconForTaskType = (type: string): string => {
-    switch (type) {
-      case '1':
-        return '𝕏'; // Twitter or social media tasks
-      case '2':
-        return '👥'; //Tg, Youtube, Instagram, Discord, Whatsapp
-      default:
-        return '🔹'; // Default icon for unknown task types
-    }
-  };
-  const handleTaskAction = (callbackUrl: string) => {
-    window.open(callbackUrl, '_blank', 'noopener,noreferrer');
-    console.log("callbackUrl-------------->", callbackUrl);
+  useEffect(() => {
+    const handleTaskCompletion = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const taskId = urlParams.get('taskId');
+      const completed = urlParams.get('completed');
+
+      if (taskId && completed === 'true') {
+        const task = tasks.find(t => t.id === taskId);
+        if (task && task.status) {
+          try {
+            await updateTaskStatus(taskId, false);
+            dispatch(addCoins(task.reward));
+            await fetchTasks(); // Refresh tasks
+          } catch (error) {
+            console.error('Error updating task status:', error);
+          }
+        }
+      }
+    };
+
+    handleTaskCompletion();
+  }, [tasks, dispatch]);
+
+  const handleTaskAction = (task: Task) => {
+    const taskUrl = new URL(task.callbackUrl);
+    taskUrl.searchParams.append('taskId', task.id);
+    window.open(taskUrl.toString(), '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -63,7 +76,8 @@ const Earn: React.FC = () => {
           {tasks.map((task) => (
             <div key={task.id} className="bg-purple-800 rounded-lg p-4 flex items-center justify-between">
               <div className="flex items-center">
-                <span className="text-2xl mr-4">{getIconForTaskType(task.type)}</span>
+                <img src={task.type} alt={task.title} className="w-10 h-10 mr-4" />
+                {/* <span className="text-2xl mr-4">{getIconForTaskType(task.type)}</span> */}
                 <div>
                   <h2 className="text-m font-semibold text-white">{task.title}</h2>
                   <p className="text-yellow-400 text-sm font-bold">+{task.reward} coins</p>
@@ -73,7 +87,7 @@ const Earn: React.FC = () => {
                 className={`${
                   task.status ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-500 cursor-not-allowed'
                 } text-white font-bold py-2 px-4 rounded transition duration-300`}
-                onClick={() => task.status && handleTaskAction(task.callbackUrl)}
+                onClick={() => task.status && handleTaskAction(task)}
               >
                 {task.action}
               </button>

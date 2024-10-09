@@ -43,6 +43,26 @@ export interface Task {
   };
 
 
+  export const updateTaskStatus = async (taskId: string, status: boolean): Promise<void> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/users/updateTaskStatus`, {
+        taskId,
+        status
+      });
+  
+      if (response.status !== 200) {
+        throw new Error('Failed to update task status');
+      }
+  
+      // You can return the updated task data if your API provides it
+      // return response.data;
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      throw error;
+    }
+  };
+
+
 
 
 
