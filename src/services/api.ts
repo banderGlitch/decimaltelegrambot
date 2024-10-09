@@ -22,6 +22,12 @@ export interface Task {
     action: string;
 }
 
+export interface CompleteTask {
+    telegramId: number;
+    taskId: string;
+    is_completed: boolean;
+}
+
   export const getUserData = async (telegramId: number): Promise<User> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/users/getUserSpecific/${telegramId}`);
@@ -62,6 +68,15 @@ export interface Task {
     }
   };
 
+  export const completeTask = async (completeTask: CompleteTask): Promise<void> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/users/addTaskToUser`, completeTask);
+      return response.data;
+    } catch (error) {
+      console.error('Error completing task:', error);
+      throw error;
+    }
+  };
 
 
 
