@@ -101,7 +101,9 @@ const fetchTasks = async () => {
     console.log("currentUrl.toString()", currentUrl.toString());
 
     // Open the task URL in the same window
-    window.location.href = task.callbackUrl;
+    window.open(task.callbackUrl, '_blank', 'noopener,noreferrer');
+
+    // window.location.href = task.callbackUrl;
   };
 
   return (
