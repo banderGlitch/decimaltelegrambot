@@ -13,7 +13,7 @@ export interface User {
   }
 
 export interface Task {
-    id: string;
+    _id: string;
     type: string;
     title: string;
     status: boolean;

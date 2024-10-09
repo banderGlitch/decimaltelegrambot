@@ -2,10 +2,11 @@ import React , { useEffect , useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { getTasks , updateTaskStatus } from '../services/api';
 import { addCoins } from '../stores/slices/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 
 interface Task {
-    id: string;
+    _id: string;
     action: string;
     callbackUrl: string;
     reward: number;
@@ -17,7 +18,7 @@ interface Task {
 
 
 const Earn: React.FC = () => {
-     
+
     const [tasks, setTasks] = useState<Task[]>([]);
     const dispatch = useDispatch();
 //   const [loading, setLoading] = useState<boolean>(true);
@@ -36,33 +37,72 @@ const fetchTasks = async () => {
     fetchTasks();
   }, []);
 
+  // useEffect(() => {
+  //   const handleTaskCompletion = async () => {
+  //     const urlParams = new URLSearchParams(window.location.search);
+  //     const taskId = urlParams.get('taskId');
+  //     const completed = urlParams.get('completed');
+
+  //     if (taskId && completed === 'true') {
+  //       const task = tasks.find(t => t.id === taskId);
+  //       if (task && task.status) {
+  //         try {
+  //           await updateTaskStatus(taskId, false);
+  //           dispatch(addCoins(task.reward));
+  //           await fetchTasks(); // Refresh tasks
+  //         } catch (error) {
+  //           console.error('Error updating task status:', error);
+  //         }
+  //       }
+  //     }
+  //   };
+
+  //   handleTaskCompletion();
+  // }, [tasks, dispatch]);
+
+  // const handleTaskAction = (task: Task) => {
+  //   const taskUrl = new URL(task.callbackUrl);
+  //   taskUrl.searchParams.append('taskId', task.id);
+  //   window.open(taskUrl.toString(), '_blank', 'noopener,noreferrer');
+  // };
+
   useEffect(() => {
     const handleTaskCompletion = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const taskId = urlParams.get('taskId');
-      const completed = urlParams.get('completed');
-
-      if (taskId && completed === 'true') {
-        const task = tasks.find(t => t.id === taskId);
+  
+      if (taskId) {
+        const task = tasks.find(t => t._id === taskId);
         if (task && task.status) {
           try {
             await updateTaskStatus(taskId, false);
             dispatch(addCoins(task.reward));
             await fetchTasks(); // Refresh tasks
+            
+            // Clear the taskId from the URL
+            window.history.replaceState({}, document.title, window.location.pathname);
           } catch (error) {
             console.error('Error updating task status:', error);
           }
         }
       }
     };
-
+  
     handleTaskCompletion();
   }, [tasks, dispatch]);
 
+
   const handleTaskAction = (task: Task) => {
-    const taskUrl = new URL(task.callbackUrl);
-    taskUrl.searchParams.append('taskId', task.id);
-    window.open(taskUrl.toString(), '_blank', 'noopener,noreferrer');
+    console.log("task", task);
+    // Construct the task URL
+    const currentUrl = new URL(window.location.href);
+    console.log("taskId", task._id);
+    currentUrl.searchParams.set('taskId', task._id);
+    window.history.replaceState({}, document.title, currentUrl.toString());
+    console.log("currentUrl.toString()", currentUrl.toString());
+
+    // Open the task URL in the same window
+    window.location.href = task.callbackUrl;
   };
 
   return (
@@ -74,7 +114,7 @@ const fetchTasks = async () => {
       ) : (
         <div className="space-y-4">
           {tasks.map((task) => (
-            <div key={task.id} className="bg-purple-800 rounded-lg p-4 flex items-center justify-between">
+            <div key={task._id} className="bg-purple-800 rounded-lg p-4 flex items-center justify-between">
               <div className="flex items-center">
                 <img src={task.type} alt={task.title} className="w-10 h-10 mr-4" />
                 {/* <span className="text-2xl mr-4">{getIconForTaskType(task.type)}</span> */}
