@@ -2,7 +2,6 @@ import React , { useEffect , useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { getTasks , updateTaskStatus } from '../services/api';
 import { addCoins } from '../stores/slices/userSlice';
-import { useNavigate } from 'react-router-dom';
 
 
 interface Task {
