@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+const API_BASE_URL = import.meta.env.VITE_API_LOCAL;
 
 export interface User {
     id: string;
@@ -26,6 +25,10 @@ export interface CompleteTask {
     telegramId: number;
     taskId: string;
     is_completed: boolean;
+}
+
+export interface Click {
+  telegramId: number;
 }
 
   export const getUserData = async (telegramId: number): Promise<User> => {
@@ -74,6 +77,22 @@ export interface CompleteTask {
       return response.data;
     } catch (error) {
       console.error('Error completing task:', error);
+      throw error;
+    }
+  };
+
+  // http://localhost:9000/api/users/click
+
+
+  
+
+  export const click = async (telegramId: number): Promise<void> => {
+    console.log("telegramId", telegramId)
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/users/click`, {telegramId});
+      return response.data;
+    } catch (error) {
+      console.error('Error clicking:', error);
       throw error;
     }
   };

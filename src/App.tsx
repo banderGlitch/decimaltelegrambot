@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from './stores/store';
-import { registerOrUpdateUser, addCoins, updateCoinsOnServer } from './stores/slices/userSlice';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from './stores/store';
 import Battle from './component/Battle';
 import Boosts from './component/Boosts';
 import Earn from './component/Earn';
 import backgroundImage from './assets/cryptogame.jpg';
-import { getUserData, User } from './services/api';
+import { click, User } from './services/api';
 
 interface CoinParticle {
   id: string;
@@ -16,7 +15,7 @@ interface CoinParticle {
 }
 
 const App: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
   const userStatus = useSelector((state: RootState) => state.user.status);
   const [activeNav, setActiveNav] = React.useState('Battle');
@@ -26,89 +25,18 @@ const App: React.FC = () => {
   const [strength, setStrength] = useState(0)
   const [tapCount, setTapCount] = useState(0);
   const [isTapping, setIsTapping] = useState(false);
+  const [telegramId, setTelegramId] = useState<number | null>(null);
   const [coinIncrement, setCoinIncrement] = useState(1);
 
   
   useEffect(() => {
-    if (userStatus === 'idle') {
-      const params = new URLSearchParams(window.location.search);
-      const userData = {
-        telegramId: params.get('id') || '',
-        name: params.get('name') || '',
-        username: params.get('username') || '',
-        photoUrl: params.get('photo_url') || '',
-      };
-      dispatch(registerOrUpdateUser(userData));
-    }
-  }, [userStatus, dispatch]);
-
-
-  useEffect(() => {
-    if (user) {
-      console.log('user-----------------------------<', user)
-      const telegramId = Number(user.telegramId);
-      getUserData(telegramId).then(data => {
-        dispatch(addCoins(data.coins));
-      });
-    }
+    const params = new URLSearchParams(window.location.search);
+    const userData = {
+      telegramId: params.get('id') || '',
+    };
+    setTelegramId(Number(userData.telegramId));
   }, []);
 
-  const previousCoinsRef = useRef(user?.coins);
-
-  useEffect(() => {
-    const updateCoins = () => {
-      if (user && user.coins !== previousCoinsRef.current) {
-        dispatch(updateCoinsOnServer());
-        console.log('user?.coins--------------->', user?.coins);
-        console.log('api hit taken place!!');
-        previousCoinsRef.current = user.coins;
-      } else {
-        console.log('Coins unchanged, skipping API call');
-      }
-    };
-
-    const intervalId = setInterval(updateCoins, 1000); // 10 seconds
-    return () => clearInterval(intervalId);
-  }, [dispatch, user]);
-
-  // const updateCoinsOnVisibilityChange = useCallback(() => {
-  //   if (document.visibilityState === 'hidden') {
-  //     dispatch(updateCoinsOnServer());
-  //   }
-  // }, [dispatch]);
-
-  
-
-
-  // useEffect(() => {
-  //   console.log('useEffect [updateCoinsOnVisibilityChange] called');
-    
-  //   const handleVisibilityChange = () => {
-  //     if (user && document.visibilityState === 'hidden') {
-  //       updateCoinsOnVisibilityChange();
-  //     }
-  //   };
-
-  //   document.addEventListener('visibilitychange', handleVisibilityChange);
-  //   return () => {
-  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //   };
-  // }, [ updateCoinsOnVisibilityChange]);
-
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setStrength(prev => {
-        const newStrength = Math.max(0, prev - 5);
-        if (newStrength < 90 && coinIncrement === 2) {
-          setCoinIncrement(1);
-        }
-        return newStrength;
-      });
-    }, 300);
-
-    return () => clearInterval(timer);
-  }, [coinIncrement]);
 
 
 
@@ -116,16 +44,15 @@ const App: React.FC = () => {
 
 
 
-
-  const handleTap = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!user) return;
+  const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
+    await click(Number(telegramId))
      // Animation ---------------------//
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
      // Animation ---------------------//
-    console.log('coinIncrement', coinIncrement)
-    dispatch(addCoins(coinIncrement));
+    // console.log('coinIncrement', coinIncrement
+    // dispatch(addCoins(coinIncrement));
     // Animation ---------------------//
     setCoinParticles(prev => [
       ...prev,
@@ -147,11 +74,8 @@ const App: React.FC = () => {
       return newStrength;
     });
 
-    // Toggle strength bar visibility
     setShowStrength(!showStrength);
 
-    // Simulate strength increase (you can adjust this logic as needed)
-    // setStrength(prevStrength => Math.min(prevStrength + 5, 100));
     setTapCount(prev => prev + 1);
 
     setIsTapping(true);
