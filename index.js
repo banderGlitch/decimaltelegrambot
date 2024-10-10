@@ -1,77 +1,98 @@
 import { Telegraf } from "telegraf";
 import express from 'express';
-import TelegramBot from "node-telegram-bot-api";
+import cors from 'cors';
+import dotenv from 'dotenv';
+import connectDB from './src/config/database.js';
+import userRoutes from './src/routes/userRoutes.js';
+
+dotenv.config();
+
 const app = express();
 
+// Enable CORS for all routes
+app.use(cors());
 
-// const bot = new Telegraf("6985905665:AAG3s5jrmX86tP9NCnLtEeyaKX6mGbE-ANw")
-const bot_new = new TelegramBot("7757991395:AAE7xlEoAxeLmfCKB3qeaN435jXJmfj_bMw", { polling: true });
+app.use(express.json()); // for parsing application/json
+const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-
-// const web_link = "https://main.d2blj32f829es0.amplifyapp.com/"
-const web_link = "https://main.dkpacvv46vzaa.amplifyapp.com/"
-
-
-const port = 9000;
-
-// bot.start(async(ctx) => {
-//     console.log("ctx", ctx)
-
-//     // Store the user information in DB
-
-//     await ctx.reply("Welcome to social bot", {
-//         reply_markup: {
-//             keyboard: [[{ text: "web app", web_app: { url: web_link } }]],
-//           },
-//     }); 
-// })
+// const web_link = "https://b6a4-205-254-167-236.ngrok-free.app/";
+const web_link = "https://frontcode.d1wqsm42h1qj4c.amplifyapp.com/";
+// const web_link = "http://localhost:5173/";
+const port = process.env.PORT || 9000;
 
 
+// Connect to MongoDB
+connectDB();
+
+// Use user routes
+app.use('/api/users', userRoutes);
+
+
+
+ 
+
+// Express route
 app.get('/', (req, res) => {
-  res.send('This is your telegram bot server asdasd.!');
+  res.send('This is your telegram bot server!');
 });
 
+// Start Express server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-bot_new.onText(/\/start/, async(msg) => {
 
-    const chatId = msg.chat.id;
-    // const user = msg.from;
-    // try {
-    //   const user = await getUser(chatId);
-    //   console.log(msg.text)
-    //   if (!user.exists) {
-    //     if(msg.text.includes('fren')){
-    //      const referrerId =msg.text.split('=')[1]
-    //      createReferralUser(chatId,referrerId)
-    //     }
-    //   } 
-    //   createUser(chatId);
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // }
-    const opts = {
+
+
+// Bot command handlers
+bot.command('start', async (ctx) => {
+  try {
+    const user = ctx.from;
+    console.log("------>",user);
+    // Get user's profile photos
+    const photos = await ctx.telegram.getUserProfilePhotos(user.id, 0, 1);
+    const photoUrl = photos.photos.length > 0 
+      ? await ctx.telegram.getFileLink(photos.photos[0][0].file_id)
+      : '';
+
+    // Encode user data as URL parameters
+    console.log(photoUrl);
+    const userDataParams = new URLSearchParams({
+      id: user.id.toString(),
+      name: user.first_name + (user.last_name ? ` ${user.last_name}` : ''),
+      username: user.username || '',
+      photo_url: photoUrl.toString(),
+    }).toString();
+
+    const webAppUrlWithParams = `${web_link}?${userDataParams}`;
+
+    await ctx.reply('Welcome to OctaClick! Open the mini app using the button below:', {
       reply_markup: {
         inline_keyboard: [
-          [
-            {
-              text: 'Open OctaClick',
-             web_app:{
-               url: web_link
-             }
-            }
-          ]
+          [{ text: 'Open OctaClick', web_app: { url: webAppUrlWithParams } }]
         ]
       }
-    };
-    bot_new.sendMessage(chatId, 'Welcome! Open the mini app using the button below:', opts);
-  });
+    });
+   
+  } catch (error) {
+    console.error('Error in start command:', error);
+    await ctx.reply('Sorry, there was an error. Please try again later.');
+  }
+}
+
+);
 
 
-//   bot_new.launch()
+// Launch bot
+bot.launch().then(() => {
+  console.log('Bot is running!');
+}).catch((error) => {
+  console.error('Failed to start the bot:', error);
+});
 
 // Enable graceful stop
-process.once('SIGINT', () => bot_new.stop('SIGINT'))
-process.once('SIGTERM', () => bot_new.stop('SIGTERM'))
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
+
+
