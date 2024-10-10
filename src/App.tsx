@@ -53,7 +53,7 @@ const App: React.FC = () => {
 
 
   const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
-    console.log('handleTap called')
+    console.log('handleTap called', event)
    
   };
   // Animation ---------------------//
