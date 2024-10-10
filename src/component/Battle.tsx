@@ -2,8 +2,18 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from '../services/api'; // Assuming you have a User type defined
 
+interface UserData {
+  telegramId: string;
+  name: string;
+  points: string;
+  level: string;
+  clickCount: string;
+  streakCount: string;
+  happinessIndex: string;
+}
+
 interface BattleProps {
-  user: User | null;
+  userData: UserData | null;
   strength: number;
   isTapping: boolean;
   coinParticles: Array<{ id: string; x: number; y: number; value: number }>;
@@ -11,7 +21,7 @@ interface BattleProps {
   setCoinParticles: React.Dispatch<React.SetStateAction<Array<{ id: string; x: number; y: number; value: number }>>>;
 }
 
-const Battle: React.FC<BattleProps> = ({ userData, user, strength, isTapping, coinParticles, handleTap, setCoinParticles }) => {
+const Battle: React.FC<BattleProps> = ({ userData, strength, isTapping, coinParticles, handleTap, setCoinParticles }) => {
   return (
     <div className="flex-grow mt-4 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0">
       {userData &&(

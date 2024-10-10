@@ -1,6 +1,6 @@
 import React , { useEffect , useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTasks , updateTaskStatus , completeTask } from '../services/api';
+import { getTasks , completeTask } from '../services/api';
 import { addCoins } from '../stores/slices/userSlice';
 import { RootState } from '../stores/store';
 
