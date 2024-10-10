@@ -31,6 +31,29 @@ export interface Click {
   telegramId: number;
 }
 
+export interface ClickResponse {
+  message: string;
+  player: {
+    points: number;
+    level: number;
+    happinessIndex: number;
+    comboBonus: number;
+    clickCount: number;
+    streakCount: number;
+    lastClickTimestamp: string;
+    purchasedUpgrades: string;
+  };
+}
+
+export interface Upgrade {
+  _id: string;
+  name: string;
+  description: string;
+  type: string;
+  levels: string;
+  unlockCost: number;
+}
+
   export const getUserData = async (telegramId: number): Promise<User> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/users/getUserSpecific/${telegramId}`);
@@ -84,10 +107,10 @@ export interface Click {
   // http://localhost:9000/api/users/click
 
 
-  
 
-  export const click = async (telegramId: number): Promise<void> => {
-    console.log("telegramId", telegramId)
+
+  export const click = async (telegramId: number): Promise<ClickResponse> => {
+    console.log("telegramIdasdasdasdasasdasdsadsadasdsa", telegramId)
     try {
       const response = await axios.post(`${API_BASE_URL}/api/users/click`, {telegramId});
       return response.data;
@@ -97,7 +120,26 @@ export interface Click {
     }
   };
 
+  export const getUpgrades = async (): Promise<Upgrade[]> => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/users/getUpgrades`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching upgrades:', error);
+      throw error;
+    }
+  };
 
+
+  export const purchase = async (upgradeId: number, telegramId: string): Promise<void> => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/users/purchase`, {upgradeId, telegramId});
+      return response.data;
+    } catch (error) {
+      console.error('Error purchasing:', error);
+      throw error;
+    }
+  };
 
 
 

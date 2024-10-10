@@ -1,35 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from './stores/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState , AppDispatch } from './stores/store';
+import { setHippoData, updateHippoData } from './stores/slices/hippoSlice';
 import Battle from './component/Battle';
-
+import Boosts from './component/Boosts';
+import Earn from './component/Earn';
+import More from './component/More';
+import { click } from './services/api';
 import backgroundImage from './assets/cryptogame.jpg';
 
 
-interface UserData {
-  telegramId: string;
-  name: string;
-  points: string;
-  level: string;
-  clickCount: string;
-  streakCount: string;
-  happinessIndex: string;
-  comboBonus: string;
-  lastClickTime: string;
-  createdAt: string;
+// interface UserData {
+//   telegramId: number;
+//   name: string;
+//   points: number;
+//   level: number;
+//   clickCount: number;
+//   streakCount: number;
+//   happinessIndex: number;
+//   comboBonus: number;
+//   lastClickTime: string;
+//   createdAt: string;
+//   purchasedUpgrades: number[];
+// }
+
+
+export interface ClickResponse {
+  message: string;
+  player: {
+    points: number;
+    level: number;
+    happinessIndex: number;
+    comboBonus: number;
+  };
 }
 const App: React.FC = () => {
- 
-  const userStatus = useSelector((state: RootState) => state.user.status);
+  const dispatch = useDispatch<AppDispatch>();
+  const hippoData = useSelector((state: RootState) => state.hippo.hippodata);
   const [activeNav, setActiveNav] = React.useState('Battle');
   
   
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState(null);
 
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const userData = {
+    const user = {
       telegramId: params.get('id') || '',
       name: params.get('name') || '',
       points: params.get('points') || '',
@@ -40,10 +56,15 @@ const App: React.FC = () => {
       comboBonus: params.get('comboBonus') || '',
       lastClickTime: params.get('lastClickTime') || '',
       createdAt: params.get('createdAt') || '',
+      purchasedUpgrades: params.get('purchasedUpgrades') || '',
     };
+    dispatch(setHippoData(user as any));
     console.log('userData-------------->', userData)
     setUserData(userData);
-  }, []);
+  }, [dispatch]);
+
+
+  console.log('hippoData-------------->', hippoData)
 
 
 
@@ -52,14 +73,53 @@ const App: React.FC = () => {
 
 
 
-  const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
-    console.log('handleTap called', event)
-   
+  // const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
+  //   console.log('handleTap called', event)
+  //   const response = await click(Number(userData?.telegramId));
+  //   console.log('response-------------->', response)
+  //   // Update the Redux store with the new data
+  //   dispatch(updateHippoData({
+  //     points: response.player.points.toString(),
+  //     level: response.player.level.toString(),
+  //     happinessIndex: response.player.happinessIndex.toString(),
+  //     comboBonus: response.player.comboBonus.toString(),
+  //   }));
+  // };
+
+  const handleTap = async () => {
+    
+    if (hippoData?.telegramId) {
+      try {
+        const response = await click(hippoData?.telegramId as any);
+        console.log('response-------------->', response);
+
+        // Update the Redux store with the new data
+        dispatch(updateHippoData({
+          points: response.player.points,
+          level: response.player.level,
+          happinessIndex: response.player.happinessIndex,
+          comboBonus: response.player.comboBonus,
+          clickCount: response.player.clickCount,
+          lastClickTime: response.player.lastClickTimestamp,
+          streakCount: response.player.streakCount ,
+          purchasedUpgrades: response.player.purchasedUpgrades as any,
+        }));
+        console.log('hippoe----asdasdads--------------->', hippoData)
+        // Optionally, you can show a message to the user
+        console.log(response.message);
+      } catch (error) {
+        console.error('Error updating hippo data:', error);
+      }
+    } else {
+      console.error('No telegram ID available');
+    }
   };
+
   // Animation ---------------------//
 
 
   const renderMainContent = () => {
+    console.log('activeNav---------->', activeNav)
     switch (activeNav) {
       case 'Battle':
         return (
@@ -68,6 +128,12 @@ const App: React.FC = () => {
             userData={userData}
           />
         );
+      case 'Boosts':
+        return <Boosts />;
+      case 'Earn':
+        return <Earn />;
+      case 'More':
+        return <More />;
       default:
         return <Battle 
           userData={userData}
@@ -81,17 +147,6 @@ const App: React.FC = () => {
   };
 
 
-  if (userStatus === 'loading') {
-    return <div>Loading...</div>;
-  }
-
-  if (userStatus === 'failed') {
-    return <div>Error loading user data</div>;
-  }
-
-
-
-
 
 
   return (
@@ -103,12 +158,13 @@ const App: React.FC = () => {
 
       <div className="w-full max-w-xl relative z-10">
         {renderMainContent()}
-    
+  
 
         <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#1c1f24] bg-opacity-80 backdrop-blur-sm flex justify-around items-center z-50 py-2 px-4">
-          {/* <NavItem icon="🚀" label="Boosts" isActive={activeNav === 'Boosts'} onClick={() => handleNavClick('Boosts')} /> */}
-          <NavItem icon="⚔️" label="Battle" isActive={activeNav === 'Battle'} onClick={() => handleNavClick('Battle')} />
-          {/* <NavItem icon="🎁" label="Earn" isActive={activeNav === 'Earn'} onClick={() => handleNavClick('Earn')} badge="5" /> */}
+          <NavItem icon="⚔️" label="Game" isActive={activeNav === 'Battle'} onClick={() => handleNavClick('Battle')} />
+          <NavItem icon="🚀" label="Boosts" isActive={activeNav === 'Boosts'} onClick={() => handleNavClick('Boosts')} />
+          <NavItem icon="🎁" label="Earn" isActive={activeNav === 'Earn'} onClick={() => handleNavClick('Earn')} badge="5" />
+          <NavItem icon="≡" label="Profile" isActive={activeNav === 'More'} onClick={() => handleNavClick('More')} />
         </div>
       </div>
     </div>
