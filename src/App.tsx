@@ -2,17 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from './stores/store';
 import Battle from './component/Battle';
-import Boosts from './component/Boosts';
-import Earn from './component/Earn';
-import backgroundImage from './assets/cryptogame.jpg';
-import { User } from './services/api';
 
-interface CoinParticle {
-  id: string;
-  x: number;
-  y: number;
-  value: number;
-}
+import backgroundImage from './assets/cryptogame.jpg';
+
 
 interface UserData {
   telegramId: string;
@@ -22,18 +14,16 @@ interface UserData {
   clickCount: string;
   streakCount: string;
   happinessIndex: string;
+  comboBonus: string;
+  lastClickTime: string;
+  createdAt: string;
 }
 const App: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.user);
+ 
   const userStatus = useSelector((state: RootState) => state.user.status);
   const [activeNav, setActiveNav] = React.useState('Battle');
-  const [coinParticles, setCoinParticles] = React.useState<CoinParticle[]>([]);
-  const [particleCounter, setParticleCounter] = React.useState(0);
-  const [showStrength, setShowStrength] = useState(false);
-  const [strength, setStrength] = useState(0)
-  const [tapCount, setTapCount] = useState(0);
-  const [isTapping, setIsTapping] = useState(false);
-  const [coinIncrement, setCoinIncrement] = useState(1);
+  
+  
   const [userData, setUserData] = useState<UserData | null>(null);
 
   
@@ -63,44 +53,8 @@ const App: React.FC = () => {
 
 
   const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
-    // await click(Number(telegramId))
-     // Animation ---------------------//
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-     // Animation ---------------------//
-    // console.log('coinIncrement', coinIncrement
-    // dispatch(addCoins(coinIncrement));
-    // Animation ---------------------//
-    setCoinParticles(prev => [
-      ...prev,
-      {
-        id: `${Date.now()}-${particleCounter}`,
-        x: x + (Math.random() - 0.5) * 60,
-        y: y + (Math.random() - 0.5) * 60,
-        value: coinIncrement
-      }
-    ]);
-    setParticleCounter(prevCounter => prevCounter + 1);
-
-    setStrength(prev => {
-      const newStrength = Math.min(100, prev + 10);
-      if (newStrength >= 90 && coinIncrement === 1) {
-        setCoinIncrement(2);
-        console.log('coinIncrement', coinIncrement)
-      }
-      return newStrength;
-    });
-
-    setShowStrength(!showStrength);
-
-    setTapCount(prev => prev + 1);
-
-    setIsTapping(true);
-    if (tapCount % 5 === 4) {
-      setStrength(prev => Math.min(100, prev + 10));
-    }
-    setTimeout(() => setIsTapping(false), 100);
+    console.log('handleTap called')
+   
   };
   // Animation ---------------------//
 
@@ -110,27 +64,14 @@ const App: React.FC = () => {
       case 'Battle':
         return (
           <Battle 
-            user={user as User | null}
-            strength={strength}
-            isTapping={isTapping}
-            coinParticles={coinParticles}
             handleTap={handleTap}
             userData={userData}
-            setCoinParticles={setCoinParticles}
           />
         );
-      case 'Boosts':
-        return <Boosts />;
-      case 'Earn':
-        return <Earn />;
       default:
         return <Battle 
-        user={user as User | null}
-          strength={strength}
-          isTapping={isTapping}
-          coinParticles={coinParticles}
+          userData={userData}
           handleTap={handleTap}
-          setCoinParticles={setCoinParticles}
         />;
     }
   };
@@ -165,9 +106,9 @@ const App: React.FC = () => {
     
 
         <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#1c1f24] bg-opacity-80 backdrop-blur-sm flex justify-around items-center z-50 py-2 px-4">
-          <NavItem icon="🚀" label="Boosts" isActive={activeNav === 'Boosts'} onClick={() => handleNavClick('Boosts')} />
+          {/* <NavItem icon="🚀" label="Boosts" isActive={activeNav === 'Boosts'} onClick={() => handleNavClick('Boosts')} /> */}
           <NavItem icon="⚔️" label="Battle" isActive={activeNav === 'Battle'} onClick={() => handleNavClick('Battle')} />
-          <NavItem icon="🎁" label="Earn" isActive={activeNav === 'Earn'} onClick={() => handleNavClick('Earn')} badge="5" />
+          {/* <NavItem icon="🎁" label="Earn" isActive={activeNav === 'Earn'} onClick={() => handleNavClick('Earn')} badge="5" /> */}
         </div>
       </div>
     </div>
