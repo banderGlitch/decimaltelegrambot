@@ -11,9 +11,22 @@ interface BattleProps {
   setCoinParticles: React.Dispatch<React.SetStateAction<Array<{ id: string; x: number; y: number; value: number }>>>;
 }
 
-const Battle: React.FC<BattleProps> = ({ user, strength, isTapping, coinParticles, handleTap, setCoinParticles }) => {
+const Battle: React.FC<BattleProps> = ({ userData, user, strength, isTapping, coinParticles, handleTap, setCoinParticles }) => {
   return (
     <div className="flex-grow mt-4 bg-[#f3ba2f] rounded-t-[48px] relative top-glow z-0">
+      {userData &&(
+        <div>
+          <h1>{userData.name}</h1>
+          <h1>{userData.points}</h1>
+          <h1>{userData.level}</h1> 
+          <h1>{userData.clickCount}</h1>
+          <h1>{userData.streakCount}</h1>
+          <h1>{userData.happinessIndex}</h1>
+          <h1>{userData.comboBonus}</h1>
+          <h1>{userData.lastClickTime}</h1>
+          <h1>{userData.createdAt}</h1>
+        </div>
+      )}
       <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-[#1d2025] rounded-t-[46px]">
         <div className="px-4 mt-4 flex justify-center">
           <motion.div

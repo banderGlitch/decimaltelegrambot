@@ -5,7 +5,7 @@ import Battle from './component/Battle';
 import Boosts from './component/Boosts';
 import Earn from './component/Earn';
 import backgroundImage from './assets/cryptogame.jpg';
-import { click, User } from './services/api';
+import { User } from './services/api';
 
 interface CoinParticle {
   id: string;
@@ -14,8 +14,16 @@ interface CoinParticle {
   value: number;
 }
 
+interface UserData {
+  telegramId: string;
+  name: string;
+  points: string;
+  level: string;
+  clickCount: string;
+  streakCount: string;
+  happinessIndex: string;
+}
 const App: React.FC = () => {
-  // const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
   const userStatus = useSelector((state: RootState) => state.user.status);
   const [activeNav, setActiveNav] = React.useState('Battle');
@@ -25,16 +33,26 @@ const App: React.FC = () => {
   const [strength, setStrength] = useState(0)
   const [tapCount, setTapCount] = useState(0);
   const [isTapping, setIsTapping] = useState(false);
-  const [telegramId, setTelegramId] = useState<number | null>(null);
   const [coinIncrement, setCoinIncrement] = useState(1);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const userData = {
       telegramId: params.get('id') || '',
+      name: params.get('name') || '',
+      points: params.get('points') || '',
+      level: params.get('level') || '',
+      clickCount: params.get('clickCount') || '',
+      streakCount: params.get('streakCount') || '',
+      happinessIndex: params.get('happinessIndex') || '',
+      comboBonus: params.get('comboBonus') || '',
+      lastClickTime: params.get('lastClickTime') || '',
+      createdAt: params.get('createdAt') || '',
     };
-    setTelegramId(Number(userData.telegramId));
+    console.log('userData-------------->', userData)
+    setUserData(userData);
   }, []);
 
 
@@ -45,7 +63,7 @@ const App: React.FC = () => {
 
 
   const handleTap = async (event: React.MouseEvent<HTMLDivElement>) => {
-    await click(Number(telegramId))
+    // await click(Number(telegramId))
      // Animation ---------------------//
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -97,6 +115,7 @@ const App: React.FC = () => {
             isTapping={isTapping}
             coinParticles={coinParticles}
             handleTap={handleTap}
+            userData={userData}
             setCoinParticles={setCoinParticles}
           />
         );
