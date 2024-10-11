@@ -46,6 +46,11 @@ function App() {
   }, []);
 
 
+  useEffect(() => {
+    console.log("playerData----------->",playerData);
+  }, [playerData]);
+
+
 
 
 
