@@ -6,7 +6,7 @@ const Game = ({ playerData }) => {
 
     return (
         <div className="p-4 bg-blue-50 min-h-screen flex flex-col items-center">
-            <h1>Welcome to the Clicker Game, {playerData.name}!</h1>
+            <h1>Welcome to the Clicker Game, {playerData.username}!</h1>
             <p>Telegram ID: {playerData.telegramId}</p>
             <p>Points: {playerData.points}</p>
             <p>Level: {playerData.level}</p>

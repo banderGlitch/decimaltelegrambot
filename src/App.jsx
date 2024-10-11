@@ -6,7 +6,7 @@ import Shop from './components/Shop';
 function App() {
   const [playerData, setPlayerData] = useState({
     telegramId: '',
-    name: '',
+    username: '',
     points: 0,
     level: 1,
     happinessIndex: 50, // Default value for happinessIndex to be discussed
@@ -24,7 +24,7 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     const player = {
       telegramId: params.get('telegramId') || '',
-      name: params.get('name') || '',
+      username: params.get('username') || '',
       points: parseInt(params.get('points')) || 0,
       level: parseInt(params.get('level')) || 1,
       happinessIndex: parseInt(params.get('happinessIndex')) || 50, // Discuss the default value if needed
