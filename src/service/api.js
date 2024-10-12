@@ -13,4 +13,23 @@ export const click = async (telegramId) => {
     }
   };
 
-  
+export const shopUpgrade = async () => {
+    try {
+        const response = await axios.get(`${API_LOCAL}/api/shop-upgrades`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting shop upgrades:', error);
+        throw error;
+    }
+}
+
+export const purchaseUpgrade = async (telegramId, upgradeId, costLevel) => {
+    try {
+        const response = await axios.post(`${API_LOCAL}/api/purchase-upgrade`, {telegramId, upgradeId, costLevel});
+        return response.data;
+    } catch (error) {
+        console.error('Error purchasing upgrade:', error);
+        throw error;
+    }
+}
+

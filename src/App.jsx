@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, Link } from 'react-router-dom';
-import { updatePlayerData } from './redux/playerSlice';
+import { updatePlayerData, updatePurchasedUpgradeCost } from './redux/playerSlice';
+import { useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Game from './components/Game';
 import Shop from './components/Shop';
 import Tasks from './components/Task';
 import Profile from './components/Profile';
-
-
+import { shopUpgrade } from './service/api';
+import { setUpgrades } from './redux/upgradeSlice';
 
 const BottomNav = () => {
   const location = useLocation();
@@ -49,7 +50,8 @@ const BottomNav = () => {
 
 function App() {
   const dispatch = useDispatch();
-
+  const playerData = useSelector(state => state.player);
+  const upgrades = useSelector(state => state.upgrades);
   const parseQueryParams = () => {
     const params = new URLSearchParams(window.location.search);
     const player = {
@@ -66,14 +68,88 @@ function App() {
       purchasedUpgrades: JSON.parse(params.get('purchasedUpgrades') || '[]'),
       activeBoosts: JSON.parse(params.get('activeBoosts') || '[]')
     };
-    dispatch(updatePlayerData(player));
+    dispatch(updatePlayerData(player));  
   };
+
 
 
   useEffect(() => {
     // Parse the query params when the component mounts
     parseQueryParams();
   }, [dispatch]);
+
+  useEffect(() => {
+    //call shop upgrade api 
+    const fetchShopUpgrades = async () => {
+        const res = await shopUpgrade();
+        console.log("res----shopUpgrade--------->", res);
+        dispatch(setUpgrades(res));
+        // console.log("res----->", res);
+    };
+    fetchShopUpgrades();
+}, [dispatch]);
+
+// useEffect(() => {
+//  playerData?.purchasedUpgrades.map((items) => {
+//   console.log("items---asasdasd-->", items);
+//   console.log("upgrades---asasdasd-->", upgrades);
+//    if(items.upgradeId === upgrades._id){
+//     console.log("upgradasdasde---asdasd-->", upgrade);
+//     console.log("upgrades---asdasd-->", upgrade.costs[upgrade.costLevel].cost);
+//    }
+//  });
+// }, []);
+
+console.log("purchasedUpgrade---------------->s", playerData)
+
+useEffect(() => {
+  console.log("Effect triggered. Checking data:");
+  console.log("playerData?.purchasedUpgrades:", playerData?.purchasedUpgrades);
+  console.log("upgrades:", upgrades);
+
+  if (!playerData?.purchasedUpgrades || !upgrades || upgrades.length === 0) {
+    console.log("Data not available yet. Skipping effect.");
+    return;
+  }
+
+  playerData.purchasedUpgrades.forEach((purchasedUpgrade) => {
+    console.log("Checking purchased upgrade:", purchasedUpgrade);
+    
+    const matchingUpgrade = upgrades.find(upgrade => upgrade._id === purchasedUpgrade.upgradeId);
+    
+    if (matchingUpgrade) {
+      console.log("Matching upgrade found:", matchingUpgrade);
+      const cost = matchingUpgrade.costs[purchasedUpgrade.Costlevel]?.cost;
+      console.log("Upgrade:", purchasedUpgrade);
+      console.log("Cost for current level:", cost);
+      dispatch(updatePurchasedUpgradeCost({
+        upgradeId: purchasedUpgrade.upgradeId,
+        cost: cost
+      }));
+    } else {
+      console.log("No matching upgrade found for:", purchasedUpgrade);
+    }
+  });
+}, [dispatch , upgrades, playerData]);
+
+// useEffect(() => {
+//   if (!playerData?.purchasedUpgrades || !upgrades) return;
+
+//   playerData?.purchasedUpgrades.forEach((upgrade) => {
+//     const matchingUpgrade = upgrades.find(u => u._id === upgrade.upgradeId);
+//     if (matchingUpgrade) {
+//       const cost = matchingUpgrade.costs[upgrade.costLevel]?.cost;
+//       console.log("Upgrade:", upgrade);
+//       console.log("Cost for current level:", cost);
+//     }
+//   });
+// }, [upgrades, playerData]);
+
+
+
+
+
+
 
 
 
