@@ -33,3 +33,13 @@ export const purchaseUpgrade = async (telegramId, upgradeId, costLevel) => {
     }
 }
 
+export const updatePlayerDataApi = async (playerData) => {
+    console.log("playerData----->", playerData);
+    try {
+        const response = await axios.post(`${API_LOCAL}/api/updatedplayerdata`,{playerData});
+        return response.data;
+    } catch (error) {
+        console.error('Error updating player data:', error);
+        throw error;
+    }
+}

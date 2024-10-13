@@ -119,7 +119,7 @@ useEffect(() => {
     
     if (matchingUpgrade) {
       console.log("Matching upgrade found:", matchingUpgrade);
-      const cost = matchingUpgrade.costs[purchasedUpgrade.Costlevel]?.cost;
+      const cost = matchingUpgrade.costs[purchasedUpgrade.Costlevel + 1]?.cost;
       console.log("Upgrade:", purchasedUpgrade);
       console.log("Cost for current level:", cost);
       dispatch(updatePurchasedUpgradeCost({
@@ -131,19 +131,6 @@ useEffect(() => {
     }
   });
 }, [dispatch , upgrades, playerData]);
-
-// useEffect(() => {
-//   if (!playerData?.purchasedUpgrades || !upgrades) return;
-
-//   playerData?.purchasedUpgrades.forEach((upgrade) => {
-//     const matchingUpgrade = upgrades.find(u => u._id === upgrade.upgradeId);
-//     if (matchingUpgrade) {
-//       const cost = matchingUpgrade.costs[upgrade.costLevel]?.cost;
-//       console.log("Upgrade:", upgrade);
-//       console.log("Cost for current level:", cost);
-//     }
-//   });
-// }, [upgrades, playerData]);
 
 
 
