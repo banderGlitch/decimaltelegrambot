@@ -12,6 +12,7 @@ const initialState = {
     lastClickTimestamp: '',
     createdAt: '',
     purchasedUpgrades: [],
+    tasks: [],
     activeBoosts: [],
   };
 
@@ -29,10 +30,22 @@ const initialState = {
           state.purchasedUpgrades[upgradeIndex].cost = cost;
         }
       },
+
+      verifyTask: (state, action) => {
+        const { taskId, reward } = action.payload;
+        state.points += reward;
+        console.log("state.points----->", reward);
+        const taskIndex = state.tasks.findIndex(task => task.taskId === taskId);
+        if (taskIndex !== -1) {
+          state.tasks[taskIndex].completed = true;
+        } else {
+          state.tasks.push({ taskId, completed: true, _id: `task_${Date.now()}` });
+        }
+      },
       resetPlayerData: () => initialState,
     },
   });
   
-  export const { updatePlayerData, resetPlayerData, updatePurchasedUpgradeCost } = playerSlice.actions;
+  export const { updatePlayerData, resetPlayerData, updatePurchasedUpgradeCost, verifyTask } = playerSlice.actions;
   
   export default playerSlice.reducer;

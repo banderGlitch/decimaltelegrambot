@@ -43,3 +43,13 @@ export const updatePlayerDataApi = async (playerData) => {
         throw error;
     }
 }
+
+export const getTasksApi = async () => {
+    try {
+        const response = await axios.get(`${API_LOCAL}/api/gettasks`);
+        return response.data;
+    } catch (error) {
+        console.error('Error getting tasks:', error);
+        throw error;
+    }
+}

@@ -8,8 +8,9 @@ import Game from './components/Game';
 import Shop from './components/Shop';
 import Tasks from './components/Task';
 import Profile from './components/Profile';
-import { shopUpgrade } from './service/api';
+import { shopUpgrade , getTasksApi } from './service/api';
 import { setUpgrades } from './redux/upgradeSlice';
+import { setTasks } from './redux/taskSlice';
 
 const BottomNav = () => {
   const location = useLocation();
@@ -66,6 +67,7 @@ function App() {
       lastClickTimestamp: params.get('lastClickTimestamp') || new Date().toISOString(),
       createdAt: params.get('createdAt') || '',
       purchasedUpgrades: JSON.parse(params.get('purchasedUpgrades') || '[]'),
+      tasks: JSON.parse(params.get('tasks') || '[]'),
       activeBoosts: JSON.parse(params.get('activeBoosts') || '[]')
     };
     dispatch(updatePlayerData(player));  
@@ -87,6 +89,16 @@ function App() {
         // console.log("res----->", res);
     };
     fetchShopUpgrades();
+}, [dispatch]);
+
+
+useEffect(() => {
+  const fetchTasks = async () => {
+    const res = await getTasksApi();
+    console.log("res----tasks--------->", res);
+    dispatch(setTasks(res));
+  };
+  fetchTasks();
 }, [dispatch]);
 
 // useEffect(() => {
