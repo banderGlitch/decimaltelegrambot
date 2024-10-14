@@ -2,6 +2,9 @@ import mongoose from 'mongoose';
 import ShopUpgrade from '../models/ShopUpgrades.js';  // Import your ShopUpgrade model
 import Player from '../models/Player.js';  // Import your Player model
 import players from './player.js';  // Import players data
+import tasks from './taskdata.js';  // Import tasks data
+import Task from '../models/Task.js';
+
 
 const connectDB_upgrades = async () => {
   try {
@@ -28,6 +31,10 @@ const connectDB_upgrades = async () => {
     // Insert new players with initialized upgrades
     await Player.insertMany(playersWithUpgrades);
     console.log('Players data inserted successfully with initialized upgrades');
+    await Task.deleteMany({})
+    await Task.insertMany(tasks);
+    // await Task.deleteMany({});
+    console.log('Tasks data inserted successfully');
 
     mongoose.connection.close();
   } catch (error) {

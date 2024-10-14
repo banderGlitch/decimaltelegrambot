@@ -1,5 +1,6 @@
 import express from 'express';
 import Player from '../models/Player.js';
+import Task from '../models/Task.js';
 import ShopUpgrade from '../models/ShopUpgrades.js';
 
 const router = express.Router();
@@ -193,7 +194,15 @@ router.get('/shop-upgrades', async (req, res) => {
     }
 })
 
-export default router;
+router.get('/gettasks', async (req, res) => {
+    try {
+        const tasks = await Task.find();
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving tasks' });
+    }
+})
+
 
 router.post('/updatedplayerdata', async (req, res) => {
     try {
@@ -215,6 +224,7 @@ router.post('/updatedplayerdata', async (req, res) => {
                     pointsPerClick: playerData.pointsPerClick,
                     lastClickTimestamp: playerData.lastClickTimestamp,
                     purchasedUpgrades: playerData.purchasedUpgrades,
+                    tasks: playerData.tasks,
                     updatedAt: new Date(),
                     // Add other fields you want to update
                 }
@@ -233,6 +243,10 @@ router.post('/updatedplayerdata', async (req, res) => {
     }
 });
 
+
+
+
+
 // router.post('/updatedplayerdata', async (req, res) => {
 //     try {
 //         const { playerdata } = req.body;
@@ -244,3 +258,4 @@ router.post('/updatedplayerdata', async (req, res) => {
 
 // })
 
+export default router;

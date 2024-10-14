@@ -12,6 +12,7 @@ const playerSchema = new mongoose.Schema({
     clickComboCount: { type: Number, default: 0 },
     completedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
     purchasedUpgrades: [{ upgradeId: { type: mongoose.Schema.Types.ObjectId, ref: 'ShopUpgrade' },  Costlevel: { type: Number, default: 0 } }],
+    tasks: [{ taskId: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' }, completed: { type: Boolean, default: false } }],
     activeBoosts: [{ effect: String, expiresAt: Date }],  // Track temporary boosts with expiration times
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
