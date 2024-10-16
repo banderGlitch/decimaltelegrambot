@@ -33,9 +33,13 @@ const initialState = {
 
       verifyTask: (state, action) => {
         const { taskId, reward } = action.payload;
-        state.points += reward;
-        console.log("state.points----->", reward);
+        console.log("taskId----inredux->", taskId);
+        console.log("reward----inredux->", reward);
+        // state.points += reward;
+        state.points = state.points + Number(reward);
+        console.log("state.points----->", state.points);
         const taskIndex = state.tasks.findIndex(task => task.taskId === taskId);
+        console.log("taskIndex---inplayerdata-->", taskIndex);
         if (taskIndex !== -1) {
           state.tasks[taskIndex].completed = true;
         } else {
