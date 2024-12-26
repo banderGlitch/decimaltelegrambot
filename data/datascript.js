@@ -45,23 +45,3 @@ const connectDB_upgrades = async () => {
 
 export default connectDB_upgrades;
 
-// import mongoose from 'mongoose';
-// import ShopUpgrade from '../models/ShopUpgrades.js';
-// import Upgrades from './data.js';
-// import Player from '../models/Player.js';
-// import players from './player.js';
-// const connectDB_upgrades = async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGODB_URI);
-//     console.log('MongoDB connected successfully');
-//     await Player.deleteMany({});
-//     await Player.insertMany(players);
-//     console.log('Players data inserted successfully');
-//     mongoose.connection.close();
-//   } catch (error) {
-//     console.error('MongoDB connection error:', error);
-//     process.exit(1);
-//   }
-// };
-
-// export default connectDB_upgrades;
