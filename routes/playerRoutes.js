@@ -59,7 +59,7 @@ const router = express.Router();
 //     //     throw error;
 //     //   }
 
-    
+
 //     // const player = await Player.findOne({telegramId});
 //     // const upgrade = await ShopUpgrade.findById(upgradeId);
 
@@ -90,8 +90,8 @@ const router = express.Router();
 //     res.status(200).json(player);
 
 
-   
-    
+
+
 //     //         await player.save();
 //     //         await upgrade.save();
 //     //         res.status(200).json(player);
@@ -168,19 +168,54 @@ const router = express.Router();
 // clicker api route
 
 router.post('/click', async (req, res) => {
-    const { telegramId } = req.body;
-    const player = await Player.findOne({telegramId});
-    console.log("pointsperclick----->", player.pointsPerClick);
-    player.points += player.pointsPerClick;
-    await player.save();
-    res.status(200).json(player);
-})
+    try {
+        const { telegramId, clickComboCount } = req.body;
+        console.log("clickComboCount----->", clickComboCount);
+        const player = await Player.findOne({ telegramId });
+
+        if (!player) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        // Update clickComboCount in the database
+        player.clickComboCount = clickComboCount || 1;
+
+        // Calculate points with combo multiplier
+        const pointsToAdd = player.pointsPerClick * player.clickComboCount;
+        console.log("pointsPerClick----->", player.pointsPerClick);
+        console.log("clickComboCount----->", player.clickComboCount);
+        console.log("pointsToAdd----->", pointsToAdd);
+
+        // Add points with combo multiplier
+        player.points += pointsToAdd;
+
+        // Update lastClickTimestamp
+        player.lastClickTimestamp = new Date();
+
+        // Save all updates
+        await player.save();
+
+        res.status(200).json(player);
+    } catch (error) {
+        console.error('Error processing click:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// router.post('/click', async (req, res) => {
+//     const { telegramId } = req.body;
+//     const player = await Player.findOne({telegramId});
+//     console.log("pointsperclick----->", player.pointsPerClick);
+//     player.points += player.pointsPerClick;
+//     await player.save();
+//     res.status(200).json(player);
+// })
 // router.post('/updatedplayer', async (req, res) => {
 
 //     try {
-        
+
 //     } catch (error) {
-        
+
 //     }
 // })
 
@@ -245,15 +280,72 @@ router.post('/updatedplayerdata', async (req, res) => {
 
 
 
+router.post('/streaks', async (req, res) => {
+    try {
+        const { telegramId } = req.body;
+        const player = await Player.findOne({ telegramId });
+
+        const now = new Date();
+        const utcNow = Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            now.getUTCHours(),
+            now.getUTCMinutes(),
+            now.getUTCSeconds()
+        );
+
+
+        const lastLogin = new Date(player.lastLoginDate);
+        const utcLastLogin = Date.UTC(
+            lastLogin.getUTCFullYear(),
+            lastLogin.getUTCMonth(),
+            lastLogin.getUTCDate(),
+            lastLogin.getUTCHours(),
+            lastLogin.getUTCMinutes(),
+            lastLogin.getUTCSeconds()
+        );
+
+
+        // Calculate hours difference using UTC times
+
+        const hoursDiff = (utcNow - utcLastLogin) / (1000 * 60 * 60);
+
+
+
+        // Check if it's a new day (24 hours) but not more than 48 hours
+
+        if (hoursDiff >= 24 && hoursDiff < 48) {
+            // Increment streak
+            player.streakCount += 1;
+        }
+
+        // If more than 48 hours have passed, reset streak
+        else if (hoursDiff >= 48) {
+            player.streakCount = 1;
+        }
+        // If less than 24 hours, keep current streak
+
+        // Store UTC timestamp
+        player.lastLoginDate = new Date(utcNow);
+        await player.save();
+        res.status(200).json(player);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating streak' });
+    }
+})
+
+
+
 
 
 // router.post('/updatedplayerdata', async (req, res) => {
 //     try {
 //         const { playerdata } = req.body;
 //         console.log("playerdata----->", playerdata);
-       
+
 //     } catch (error) {
-        
+
 //     }
 
 // })

@@ -2,10 +2,12 @@ import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
 import Player from './models/Player.js';
 import Task from './models/Task.js';
+import { deleteTelegramMessage } from './service/telegramapi.js';
 import ShopUpgrade from './models/ShopUpgrades.js';  // Import the ShopUpgrade model
 
 dotenv.config();
 
+// const web_link = "https://ac82-49-207-62-133.ngrok-free.app/";
 const web_link = "https://11octfrontend.d202isk1www69l.amplifyapp.com/";
 
 if (!process.env.TELEGRAM_TOKEN) {
@@ -32,11 +34,9 @@ const initializeTask = async () => {
     }));
 }
 
-
-
-// Function to send game link
-const sendGameLink = async (ctx, player) => {
-    const userDataParams = new URLSearchParams({
+// Create a separate function for userDataParams
+const createUserDataParams = (player, ctx) => {
+    return new URLSearchParams({
         telegramId: player.telegramId,
         username: player.username,
         points: player.points || 0,
@@ -50,19 +50,52 @@ const sendGameLink = async (ctx, player) => {
         purchasedUpgrades: JSON.stringify(player.purchasedUpgrades || []),
         tasks: JSON.stringify(player.tasks || []),
         activeBoosts: JSON.stringify(player.activeBoosts || []),
+        streak: player.streakCount,
+        startMessageId: ctx.message.message_id,
+        chatId: ctx.chat.id
     }).toString();
+};
+
+
+// Function to send game link
+const sendGameLink = async (ctx, player, userDataParams) => {
+    // const userDataParams = new URLSearchParams({
+    //     telegramId: player.telegramId,
+    //     username: player.username,
+    //     points: player.points || 0,
+    //     level: player.level || 1,
+    //     happinessIndex: player.happinessIndex || 50,
+    //     maintenanceCost: player.maintenanceCost || 0,
+    //     pointsPerClick: player.pointsPerClick || 1,
+    //     clickComboCount: player.clickComboCount || 0,
+    //     lastClickTimestamp: player.lastClickTimestamp?.toISOString() || new Date().toISOString(),
+    //     createdAt: player.createdAt.toISOString(),
+    //     purchasedUpgrades: JSON.stringify(player.purchasedUpgrades || []),
+    //     tasks: JSON.stringify(player.tasks || []),
+    //     activeBoosts: JSON.stringify(player.activeBoosts || []),
+    //     streak:player.streakCount,
+    //     // lastMessageId: ctx.message.message_id, // Add message ID
+    //     // chatId: ctx.chat.id // Add chat ID
+    // }).toString();
 
     const welcomeMessage = player.isNew ? 'Welcome to the Clicker Game!' : 'Welcome back!';
     console.log(`web_link--------->: ${web_link}?${userDataParams}`);
 
-    await ctx.reply(`${welcomeMessage}! Let's start the game.`, {
+
+    const sentMessage = await ctx.reply(`${welcomeMessage}! Let's start the game.`, {
         reply_markup: {
           inline_keyboard: [
             [{ text: 'Open app', web_app: { url: `${web_link}?${userDataParams}` }}]
           ]
         }
     });
+    // await deleteTelegramMessage(ctx.chat.id, sentMessage.message_id);
+    console.log("sentmessage",sentMessage.message_id);
+    return sentMessage
 };
+
+
+
 
 // Set up bot commands for the menu
 bot.telegram.setMyCommands([
@@ -77,8 +110,12 @@ bot.start(async (ctx) => {
     const { id: telegramId, username } = ctx.message.from;
     console.log(`telegramId: ${telegramId}, username: ${username}`);
 
+    console.log("ctx.message.message_id----------->",ctx.message.message_id);
+    console.log("ctx.chat.id----------->",ctx.chat.id);
+
     try {
         let player = await Player.findOne({ telegramId });
+        console.log("player---fetchingplayer---------->",player)
 
         if (!player) {
             // If player doesn't exist, initialize purchasedUpgrades and create a new player
@@ -88,14 +125,22 @@ bot.start(async (ctx) => {
               telegramId, 
               username, 
               purchasedUpgrades,
-              tasks
+              tasks,
+              streakCount: 1, // Initialize streak count
+              lastLoginDate: new Date(), // Set initial login date
             });
             await player.save();
         }
+        // Create userDataParams first
+        const userDataParams = createUserDataParams(player, ctx);
+        
+        // Send game link with params
+        const sentMessage = await sendGameLink(ctx, player, userDataParams);
+        console.log("sentMessage",sentMessage.message_id);
+        // await deleteTelegramMessage(ctx.chat.id, sentMessage.message_id);
 
-        await sendGameLink(ctx, player);
+        // await sendGameLink(ctx, player);
 
-        // Delete up to 10 previous messages
         const messageId = ctx.message.message_id;
         for (let i = messageId - 1; i > messageId - 50; i--) {
             try {
@@ -142,11 +187,11 @@ bot.command('stats', async (ctx) => {
         const player = await Player.findOne({ telegramId });
         if (player) {
             const stats = `
-                      Your Stats:
+                     Your Stats:
                      Points: ${player.points}
                      Level: ${player.level}
-Happiness Index: ${player.happinessIndex}
-Points Per Click: ${player.pointsPerClick}
+                    Happiness Index: ${player.happinessIndex}
+               Points Per Click: ${player.pointsPerClick}
                        `;
             ctx.reply(stats);
         } else {
