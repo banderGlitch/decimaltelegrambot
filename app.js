@@ -23,3 +23,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 app.get('/', (req, res) => {
     res.send('Telegram Bot is running');
 });
+
+app.get('/health', (req, res) => {
+    res.send('OK Telegram server is running');
+});
