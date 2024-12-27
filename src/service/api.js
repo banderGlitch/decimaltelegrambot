@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-const API_LOCAL = import.meta.env.VITE_API_LOCAL;
+const API_LOCAL = import.meta.env.VITE_API;
+const TWITTER_API_BASE = 'https://api.twitter.com/2';
+const TWITTER_BEARER_TOKEN = import.meta.env.VITE_TWITTER_BEARER_TOKEN;
 
-export const click = async (telegramId) => {
+
+export const click = async (telegramId ,clickComboCount) => {
     console.log("telegramIdasdasdasdasasdasdsadsadasdsa", telegramId)
     try {
-      const response = await axios.post(`${API_LOCAL}/api/click`, {telegramId});
+      const response = await axios.post(`${API_LOCAL}/api/click`, {telegramId, clickComboCount});
       return response.data;
     } catch (error) {
       console.error('Error clicking:', error);
@@ -53,3 +56,81 @@ export const getTasksApi = async () => {
         throw error;
     }
 }
+
+
+export const streak = async (telegramId) => {
+    try {
+        const response = await axios.post(`${API_LOCAL}/api/streaks`, {telegramId});
+        return response.data;
+    } catch (error) {
+        console.error('Error getting streak:', error);
+        throw error;
+    }
+}
+
+// Telegram API functions
+export const deleteTelegramMessage = async (chatId, messageId) => {
+    try {
+        const response = await axios.post(
+            `https://api.telegram.org/bot${import.meta.env.VITE_TELEGRAM_BOT_TOKEN}/deleteMessage`,
+            {
+                chat_id: chatId,
+                message_id: messageId
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting message:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+// Twitter API functions
+const twitterAxios = axios.create({
+    baseURL: TWITTER_API_BASE,
+    headers: {
+        'Authorization': `Bearer ${TWITTER_BEARER_TOKEN}`,
+        'Content-Type': 'application/json'
+    }
+});
+
+
+
+export const getUserByUsername = async (username) => {
+    try {
+        const response = await twitterAxios.get(`/users/by/username/${username}`, {
+            params: {
+                'user.fields': 'public_metrics,description,profile_image_url'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching Twitter user:', error);
+        throw error;
+    }
+};
+
+
+export const checkFollowing = async (sourceUserId, targetUsername) => {
+    try {
+        // First get target user's ID
+        const targetUser = await getUserByUsername(targetUsername);
+        const targetUserId = targetUser.data.id;
+
+        // Then check following status
+        const response = await twitterAxios.get(`/users/${sourceUserId}/following?target_user_id=${targetUserId}`);
+        return {
+            following: true,
+            targetUser: targetUser.data
+        };
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            return {
+                following: false,
+                error: 'Not following'
+            };
+        }
+        console.error('Error checking Twitter following status:', error);
+        throw error;
+    }
+};

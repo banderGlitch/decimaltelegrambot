@@ -8,7 +8,7 @@ import Game from './components/Game';
 import Shop from './components/Shop';
 import Tasks from './components/Task';
 import Profile from './components/Profile';
-import { shopUpgrade , getTasksApi } from './service/api';
+import { shopUpgrade, getTasksApi, streak , deleteTelegramMessage } from './service/api';
 import { setUpgrades } from './redux/upgradeSlice';
 import { setTasks } from './redux/taskSlice';
 
@@ -68,10 +68,15 @@ function App() {
       createdAt: params.get('createdAt') || '',
       purchasedUpgrades: JSON.parse(params.get('purchasedUpgrades') || '[]'),
       tasks: JSON.parse(params.get('tasks') || '[]'),
-      activeBoosts: JSON.parse(params.get('activeBoosts') || '[]')
+      activeBoosts: JSON.parse(params.get('activeBoosts') || '[]'),
+      streak: parseInt(params.get('streak')) || 0,
+      chatId: params.get('chatId') || '',
+      lastMessageId: parseInt(params.get('startMessageId')) || null
+
     };
-    dispatch(updatePlayerData(player));  
+    dispatch(updatePlayerData(player));
   };
+
 
 
 
@@ -83,74 +88,84 @@ function App() {
   useEffect(() => {
     //call shop upgrade api 
     const fetchShopUpgrades = async () => {
-        const res = await shopUpgrade();
-        console.log("res----shopUpgrade--------->", res);
-        dispatch(setUpgrades(res));
-        // console.log("res----->", res);
+      const res = await shopUpgrade();
+      console.log("res----shopUpgrade--------->", res);
+      dispatch(setUpgrades(res));
+      // console.log("res----->", res);
     };
     fetchShopUpgrades();
-}, [dispatch]);
+  }, [dispatch]);
 
 
-useEffect(() => {
-  const fetchTasks = async () => {
-    const res = await getTasksApi();
-    console.log("res----tasks--------->", res);
-    dispatch(setTasks(res));
-  };
-  fetchTasks();
-}, [dispatch]);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const res = await getTasksApi();
+      console.log("res----tasks--------->", res);
+      dispatch(setTasks(res));
+    };
+    fetchTasks();
+  }, [dispatch]);
 
-// useEffect(() => {
-//  playerData?.purchasedUpgrades.map((items) => {
-//   console.log("items---asasdasd-->", items);
-//   console.log("upgrades---asasdasd-->", upgrades);
-//    if(items.upgradeId === upgrades._id){
-//     console.log("upgradasdasde---asdasd-->", upgrade);
-//     console.log("upgrades---asdasd-->", upgrade.costs[upgrade.costLevel].cost);
-//    }
-//  });
-// }, []);
 
-console.log("purchasedUpgrade---------------->s", playerData)
+  console.log("purchasedUpgrade---------------->s", playerData)
 
-useEffect(() => {
-  console.log("Effect triggered. Checking data:");
-  console.log("playerData?.purchasedUpgrades:", playerData?.purchasedUpgrades);
-  console.log("upgrades:", upgrades);
+  useEffect(() => {
+    console.log("Effect triggered. Checking data:");
+    console.log("playerData?.purchasedUpgrades:", playerData?.purchasedUpgrades);
+    console.log("upgrades:", upgrades);
 
-  if (!playerData?.purchasedUpgrades || !upgrades || upgrades.length === 0) {
-    console.log("Data not available yet. Skipping effect.");
-    return;
-  }
-
-  playerData.purchasedUpgrades.forEach((purchasedUpgrade) => {
-    console.log("Checking purchased upgrade:", purchasedUpgrade);
-    
-    const matchingUpgrade = upgrades.find(upgrade => upgrade._id === purchasedUpgrade.upgradeId);
-    
-    if (matchingUpgrade) {
-      console.log("Matching upgrade found:", matchingUpgrade);
-      const cost = matchingUpgrade.costs[purchasedUpgrade.Costlevel + 1]?.cost;
-      console.log("Upgrade:", purchasedUpgrade);
-      console.log("Cost for current level:", cost);
-      dispatch(updatePurchasedUpgradeCost({
-        upgradeId: purchasedUpgrade.upgradeId,
-        cost: cost
-      }));
-    } else {
-      console.log("No matching upgrade found for:", purchasedUpgrade);
+    if (!playerData?.purchasedUpgrades || !upgrades || upgrades.length === 0) {
+      console.log("Data not available yet. Skipping effect.");
+      return;
     }
-  });
-}, [dispatch , upgrades, playerData]);
+
+    playerData.purchasedUpgrades.forEach((purchasedUpgrade) => {
+      console.log("Checking purchased upgrade:", purchasedUpgrade);
+
+      const matchingUpgrade = upgrades.find(upgrade => upgrade._id === purchasedUpgrade.upgradeId);
+
+      if (matchingUpgrade) {
+        console.log("Matching upgrade found:", matchingUpgrade);
+        const cost = matchingUpgrade.costs[purchasedUpgrade.Costlevel + 1]?.cost;
+        console.log("Upgrade:", purchasedUpgrade);
+        console.log("Cost for current level:", cost);
+        dispatch(updatePurchasedUpgradeCost({
+          upgradeId: purchasedUpgrade.upgradeId,
+          cost: cost
+        }));
+      } else {
+        console.log("No matching upgrade found for:", purchasedUpgrade);
+      }
+    });
+  }, [dispatch, upgrades, playerData]);
 
 
 
+  // streak api 
+
+
+  useEffect(() => {
+    const updatePlayerStreak = async () => {
+      if (playerData?.telegramId) {
+        try {
+          const streakData = await streak(playerData.telegramId);
+          console.log("Streak updated:", streakData);
+          // Optionally dispatch streak data to store if needed
+        } catch (error) {
+          console.error("Error updating streak:", error);
+        }
+      }
+    };
+    updatePlayerStreak();
+  }, [playerData?.telegramId]);
 
 
 
-
-
+  useEffect(() => {
+    if (playerData?.chatId && playerData?.lastMessageId) {
+      deleteTelegramMessage(playerData.chatId, playerData.lastMessageId+1);
+    }
+  }, [playerData?.chatId, playerData?.lastMessageId]);
 
 
 

@@ -26,3 +26,79 @@ body, html {
     font-weight: 400;
     font-style: normal;
   }
+
+
+
+
+  @keyframes pulseNext {
+    0% {
+        opacity: 0.6;
+        transform: scaleY(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scaleY(1.1);
+    }
+    100% {
+        opacity: 0.6;
+        transform: scaleY(1);
+    }
+}
+
+@keyframes tapPulse {
+    0% {
+        transform: scaleY(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scaleY(1.4);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleY(1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes pulseText {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes maintain {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.animate-pulse-next {
+    animation: pulseNext 1.5s ease-in-out infinite;
+}
+
+.animate-tap-pulse {
+    animation: tapPulse 0.3s ease-out;
+}
+
+.animate-pulse-text {
+    animation: pulseText 1.5s ease-in-out infinite;
+}
+
+.animate-maintain {
+    animation: maintain 2s infinite;
+}
