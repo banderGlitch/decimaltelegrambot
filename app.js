@@ -8,13 +8,11 @@ import bot from './bot.js';
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: [
-        'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
-        'http://localhost:9000'  // for local development
-    ],
+    origin: 'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
 connectDB();
