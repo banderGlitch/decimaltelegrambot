@@ -8,7 +8,8 @@ import ShopUpgrade from './models/ShopUpgrades.js';  // Import the ShopUpgrade m
 dotenv.config();
 
 // const web_link = "https://ac82-49-207-62-133.ngrok-free.app/";
-const web_link = "https://11octfrontend.d202isk1www69l.amplifyapp.com/";
+const web_link= "https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com/"
+// const web_link = "https://11octfrontend.d202isk1www69l.amplifyapp.com/";
 
 if (!process.env.TELEGRAM_TOKEN) {
   throw new Error("Telegram token not found in environment variables.");
