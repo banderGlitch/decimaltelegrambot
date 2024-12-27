@@ -7,7 +7,15 @@ import bot from './bot.js';
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: [
+        'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
+        'http://localhost:9000'  // for local development
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 
 connectDB();
 // connectDB_upgrades();
