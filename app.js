@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 // CORS configuration - updated with more comprehensive settings
 app.use(cors({
-    origin: 'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
+    // origin: 'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
