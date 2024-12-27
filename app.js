@@ -9,32 +9,13 @@ const app = express();
 app.use(express.json());
 // CORS configuration - updated with more comprehensive settings
 app.use(cors({
-    origin: ['https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com', 'http://51.20.124.35', 'https://51.20.124.35'],
+    origin: 'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Content-Range', 'X-Content-Range']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Additional security headers
-app.use((req, res, next) => {
-    // Allow both your frontend domain and IP
-    const allowedOrigins = ['https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com', 'http://51.20.124.35', 'https://51.20.124.35'];
-    const origin = req.headers.origin;
-    
-    if (allowedOrigins.includes(origin)) {
-        res.header('Access-Control-Allow-Origin', origin);
-    }
-    
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(204).end();
-    }
-    next();
-});
 
 connectDB();
 // connectDB_upgrades();
