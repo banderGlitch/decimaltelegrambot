@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const playerSchema = new mongoose.Schema({
   telegramId: { type: String, required: true, unique: true },
-  username: { type: String, required: true },
+  username: { type: String  },
   points: { type: Number, default: 0 },
   level: { type: Number, default: 1 },
   happinessIndex: { type: Number, default: 3 },

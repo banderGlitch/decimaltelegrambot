@@ -7,14 +7,21 @@ import bot from './bot.js';
 
 const app = express();
 app.use(express.json());
-// CORS configuration - updated with more comprehensive settings
-// app.use(cors({
-//     origin: 'https://11octfrontend.d2tn8votwbjk0l.amplifyapp.com',
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-// }));
 
+// CORS configuration - updated with more comprehensive settings
+
+if (process.env.NODE_ENV !== 'production') {
+    app.use(cors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    }));
+    console.log('CORS enabled for development');
+} else {
+    // In production, CORS is handled by Nginx
+    console.log('Running in production - CORS handled by Nginx');
+}
 // Additional security headers
 
 connectDB();
