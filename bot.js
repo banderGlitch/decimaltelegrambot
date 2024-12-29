@@ -109,7 +109,8 @@ bot.telegram.setMyCommands([
 bot.start(async (ctx) => {
     console.log(`ctx.message.from: ${ctx.message.from}`);
     const { id: telegramId, username } = ctx.message.from;
-    console.log(`telegramId: ${telegramId}, username: ${username}`);
+    const safeUsername = username || `guest_${telegramId}`; // Fallback for missing username
+    console.log(`telegramId: ${telegramId}, username: ${safeUsername}`);
 
     console.log("ctx.message.message_id----------->",ctx.message.message_id);
     console.log("ctx.chat.id----------->",ctx.chat.id);
@@ -124,7 +125,7 @@ bot.start(async (ctx) => {
             const tasks = await initializeTask();
             player = new Player({ 
               telegramId, 
-              username, 
+              username: safeUsername, 
               purchasedUpgrades,
               tasks,
               streakCount: 1, // Initialize streak count
