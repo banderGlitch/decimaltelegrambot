@@ -78,13 +78,6 @@ const Tasks = () => {
                             >
                                 Verify
                             </button>
-                            {/* <Link
-                                to={`/verify-task/${task.id}`}
-                                className={`bg-green-500 text-white py-2 px-4 rounded ${!isTaskEnabled(task.id) && 'opacity-50 cursor-not-allowed'}`}
-                                onClick={(e) => !isTaskEnabled(task.id) && e.preventDefault()}
-                            >
-                                Verify
-                            </Link> */}
                         </div>
                     </div>
                 ))}
