@@ -4,8 +4,8 @@ import { updatePlayerData } from '../redux/playerSlice';
 import { updatePlayerDataApi } from '../service/api';
 
 const Shop = () => {
-    const playerData = useSelector(state => state.player);
-    const upgrades = useSelector(state => state.upgrades);
+    const playerData = useSelector((state) => state.player);
+    const upgrades = useSelector((state) => state.upgrades);
     const dispatch = useDispatch();
 
     const handlePurchase = async (upgradeId) => {
@@ -56,13 +56,18 @@ const Shop = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-green-50">
-            <div className="p-4">
-                <h1 className="text-2xl font-bold mb-2">Shop</h1>
-                <p className="mb-2">Points: {playerData.points}</p>
+        <div className="flex flex-col h-screen bg-gradient-to-b from-green-100 to-green-50">
+            {/* Header */}
+            <div className="p-6 bg-white shadow-md flex justify-between items-center sticky top-0 z-10">
+                <h1 className="text-3xl font-bold text-green-700">Shop</h1>
+                <p className="text-lg font-semibold text-gray-700">
+                    Points: <span className="text-green-700">{Math.round(playerData.points)}</span>
+                </p>
             </div>
-            <div className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            {/* Scrollable Shop Items */}
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {upgrades.map((upgrade) => {
                         const playerUpgrade = playerData.purchasedUpgrades.find(u => u.upgradeId === upgrade._id);
                         const currentLevel = playerUpgrade ? playerUpgrade.Costlevel : 0;
@@ -70,18 +75,38 @@ const Shop = () => {
                         const nextLevelData = upgrade.costs.find(c => c.level === nextLevel);
 
                         return (
-                            <div key={upgrade._id} className="bg-white shadow-md p-4 rounded-lg">
-                                <h2 className="text-lg font-bold">{upgrade.name}</h2>
-                                <p>{upgrade.description}</p>
-                                <p>Current Level: {currentLevel}</p>
-                                <p>Next Level: {nextLevel}</p>
-                                <p>Cost: {nextLevelData ? nextLevelData.cost : 'N/A'}</p>
+                            <div
+                                key={upgrade._id}
+                                className="bg-white shadow-lg rounded-lg p-6 transition-transform transform hover:scale-105"
+                            >
+                                {/* Upgrade Name */}
+                                <h2 className="text-xl font-bold text-gray-800">{upgrade.name}</h2>
+                                <p className="text-gray-600">{upgrade.description}</p>
+
+                                {/* Upgrade Details */}
+                                <div className="mt-4">
+                                    <p className="text-sm text-gray-500">
+                                        Current Level: <span className="text-gray-800">{currentLevel}</span>
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Next Level: <span className="text-gray-800">{nextLevel}</span>
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Cost: <span className="text-gray-800">{nextLevelData ? nextLevelData.cost : 'N/A'}</span>
+                                    </p>
+                                </div>
+
+                                {/* Buy Button */}
                                 <button
-                                    className="bg-blue-500 text-white py-2 px-4 rounded mt-4 disabled:bg-gray-400"
+                                    className={`w-full mt-6 py-2 px-4 rounded text-white font-bold ${
+                                        playerData.points >= (nextLevelData?.cost || Infinity)
+                                            ? 'bg-green-600 hover:bg-green-700'
+                                            : 'bg-gray-400 cursor-not-allowed'
+                                    }`}
                                     onClick={() => handlePurchase(upgrade._id)}
                                     disabled={playerData.points < (nextLevelData?.cost || Infinity)}
                                 >
-                                    {playerData.points >= (nextLevelData?.cost || Infinity) ? 'Buy' : 'Not Enough Points'}
+                                    {playerData.points >= (nextLevelData?.cost || Infinity) ? 'Buy Upgrade' : 'Not Enough Points'}
                                 </button>
                             </div>
                         );
@@ -93,6 +118,8 @@ const Shop = () => {
 };
 
 export default Shop;
+
+
 
 // import React, { useEffect } from 'react';
 // import { useSelector, useDispatch } from 'react-redux';

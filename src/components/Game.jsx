@@ -3,46 +3,46 @@ import { useSelector, useDispatch } from "react-redux";
 import { click } from "../service/api";
 import { updatePlayerData } from "../redux/playerSlice";
 import { gsap } from "gsap";
-import bitcoinCoin from "../assets/pngegg.png"; // Bitcoin image
-import backgroundImage from "../assets/Designer.jpeg"; // Background image
+import bitcoinCoin from "../assets/pngegg.png";
+import backgroundImage from "../assets/Designer.jpeg";
 
 const Game = () => {
   const dispatch = useDispatch();
   const playerData = useSelector((state) => state.player);
 
+  // Local state
+  const [combo, setCombo] = useState(1); // Combo multiplier
+  const [isApiCallInProgress, setIsApiCallInProgress] = useState(false); // Prevent simultaneous API calls
+  const bitcoinRef = useRef(null); // Bitcoin reference
+  const scoreContainerRef = useRef(null); // Floating score container reference
 
-//   useEffect(() => {
-//     setTotalPoints(playerData.points || 0);
-//   }, []);
+  // Handle the tap event
+  const handleTap = async () => {
+    // Prevent overlapping API calls
+    if (isApiCallInProgress) return;
 
-  // Local game state
-  const [combo, setCombo] = useState(1);
-  const [localPoints, setLocalPoints] = useState(0); // Points gained locally (not yet synced)
-  const [totalPoints, setTotalPoints] = useState(playerData.points || 0); // Total points from Redux
+    setCombo((prevCombo) => Math.min(5, prevCombo + 1)); // Increment combo
 
-  // Refs for batching and syncing
-  const pointsQueueRef = useRef(0);
-  const syncIntervalRef = useRef(null);
-  const bitcoinRef = useRef(null);
-  const scoreContainerRef = useRef(null);
+    // Add visual effects
+    animateBitcoin();
+    showFloatingScore(Math.round(combo)); // Round off the combo value before displaying
 
-  // Initialize points from Redux
-  useEffect(() => {
-    setTotalPoints(playerData.points || 0);
-  }, [playerData.points]);
+    // Call the API
+    setIsApiCallInProgress(true);
+    try {
+      const response = await click(playerData.telegramId, Math.round(combo)); // Round off combo value for API
+      if (response) {
+        dispatch(updatePlayerData(response)); // Update Redux with latest data
+      }
+    } catch (error) {
+      console.error("Error syncing points:", error);
+    } finally {
+      setIsApiCallInProgress(false); // Allow further API calls
+    }
+  };
 
-  // Handle tap event
-  const handleTap = () => {
-    // Update combo
-    setCombo((prevCombo) => Math.min(5, prevCombo + 1));
-
-    // Add points locally and to the queue
-    const pointsToAdd = combo;
-    setLocalPoints((prevPoints) => prevPoints + pointsToAdd);
-    setTotalPoints((prevTotal) => prevTotal + pointsToAdd); // Update frontend points instantly
-    pointsQueueRef.current += pointsToAdd; // Add points to the queue
-
-    // Animate Bitcoin (rotate and scale)
+  // Animate Bitcoin (rotate and scale)
+  const animateBitcoin = () => {
     gsap.to(bitcoinRef.current, {
       scale: 1.3,
       rotation: 360,
@@ -50,17 +50,19 @@ const Game = () => {
       ease: "power3.out",
       onComplete: () => gsap.to(bitcoinRef.current, { scale: 1, rotation: 0, duration: 0.2 }),
     });
+  };
 
-    // Add floating score effect
+  // Show floating score effect
+  const showFloatingScore = (points) => {
     const floatingScore = document.createElement("div");
     floatingScore.className = "floating-score";
-    floatingScore.innerText = `+${combo}`;
+    floatingScore.innerText = `+${points}`;
     floatingScore.style.left = "50%";
     floatingScore.style.top = "50%";
     scoreContainerRef.current.appendChild(floatingScore);
 
-    const randomX = Math.random() * 100 - 50; // Random X position
-    const randomY = -Math.random() * 100 - 50; // Random Y position
+    const randomX = Math.random() * 100 - 50;
+    const randomY = -Math.random() * 100 - 50;
 
     gsap.to(floatingScore, {
       x: randomX,
@@ -72,36 +74,13 @@ const Game = () => {
     });
   };
 
-  // Background sync process
-  useEffect(() => {
-    syncIntervalRef.current = setInterval(async () => {
-      if (pointsQueueRef.current > 0) {
-        const pointsToSync = pointsQueueRef.current;
-        pointsQueueRef.current = 0; // Reset the queue
-
-        try {
-          const response = await click(playerData.telegramId, pointsToSync); // Send batched points
-          if (response) {
-            dispatch(updatePlayerData(response)); // Update Redux with the latest data from the backend
-          }
-        } catch (error) {
-          console.error("Error syncing points:", error);
-          // If the sync fails, add the points back to the queue
-          pointsQueueRef.current += pointsToSync;
-        }
-      }
-    }, 1000); // Sync every 1 second
-
-    return () => clearInterval(syncIntervalRef.current);
-  }, [dispatch, playerData.telegramId]);
-
   // Gradually decrease combo
   useEffect(() => {
-    const interval = setInterval(() => {
+    const comboInterval = setInterval(() => {
       setCombo((prevCombo) => Math.max(1, prevCombo - 0.1));
     }, 200);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(comboInterval); // Cleanup on unmount
   }, []);
 
   return (
@@ -109,7 +88,7 @@ const Game = () => {
       {/* Total points */}
       <div className="points-display">
         <span className="points-label">Points:</span>
-        <span className="points-value">{totalPoints.toFixed(2)}</span>
+        <span className="points-value">{Math.floor(playerData.points)}</span>
       </div>
 
       {/* Bitcoin image */}
@@ -120,7 +99,7 @@ const Game = () => {
           className="bitcoin"
           ref={bitcoinRef}
           onClick={handleTap}
-          style={{ width: "200px", height: "200px" }} // Larger coin size
+          style={{ width: "200px", height: "200px" }}
         />
       </div>
 
@@ -142,6 +121,9 @@ const Game = () => {
 };
 
 export default Game;
+
+
+
 
 
 
