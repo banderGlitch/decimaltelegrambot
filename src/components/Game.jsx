@@ -20,7 +20,7 @@ const Game = () => {
   const handleTap = async () => {
     // Prevent overlapping API calls
 
-    triggerHapticFeedback();
+    triggerVibration();
     
     if (isApiCallInProgress) return;
 
@@ -45,12 +45,13 @@ const Game = () => {
   };
 
     // Haptic feedback function
-    const triggerHapticFeedback = () => {
+    const triggerVibration = () => {
       if (navigator.vibrate) {
-        navigator.vibrate(50); // Vibrate for 50 milliseconds
+        navigator.vibrate(50); // Vibrates for 50ms
+      } else {
+        console.warn("Vibration API not supported on this device.");
       }
     };
-  
 
   // Animate Bitcoin (rotate and scale)
   const animateBitcoin = () => {

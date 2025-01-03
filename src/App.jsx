@@ -12,52 +12,110 @@ import { shopUpgrade, getTasksApi, streak , deleteTelegramMessage } from './serv
 import { setUpgrades } from './redux/upgradeSlice';
 import { setTasks } from './redux/taskSlice';
 
+
 const BottomNav = () => {
   const location = useLocation();
 
+  const handleVibration = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // Vibrates for 50ms
+    }
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-green-500 shadow-lg">
-    <div className="flex justify-around items-center h-16">
-      <Link
-        to="/"
-        className={`flex flex-col items-center ${
-          location.pathname === "/" ? "text-yellow-400" : "text-white"
-        }`}
-      >
-        <span className="text-2xl">🎮</span>
-        <span className="text-sm">Game</span>
-      </Link>
-      <Link
-        to="/shop"
-        className={`flex flex-col items-center ${
-          location.pathname === "/shop" ? "text-yellow-400" : "text-white"
-        }`}
-      >
-        <span className="text-2xl">🛒</span>
-        <span className="text-sm">Shop</span>
-      </Link>
-      <Link
-        to="/tasks"
-        className={`flex flex-col items-center ${
-          location.pathname === "/tasks" ? "text-yellow-400" : "text-white"
-        }`}
-      >
-        <span className="text-2xl">📋</span>
-        <span className="text-sm">Tasks</span>
-      </Link>
-      <Link
-        to="/profile"
-        className={`flex flex-col items-center ${
-          location.pathname === "/profile" ? "text-yellow-400" : "text-white"
-        }`}
-      >
-        <span className="text-2xl">👤</span>
-        <span className="text-sm">Profile</span>
-      </Link>
-    </div>
-  </nav>
+      <div className="flex justify-around items-center h-16">
+        <Link
+          to="/"
+          className={`flex flex-col items-center ${
+            location.pathname === "/" ? "text-yellow-400" : "text-white"
+          }`}
+          onClick={handleVibration}
+        >
+          <span className="text-2xl">🎮</span>
+          <span className="text-sm">Game</span>
+        </Link>
+        <Link
+          to="/shop"
+          className={`flex flex-col items-center ${
+            location.pathname === "/shop" ? "text-yellow-400" : "text-white"
+          }`}
+          onClick={handleVibration}
+        >
+          <span className="text-2xl">🛒</span>
+          <span className="text-sm">Shop</span>
+        </Link>
+        <Link
+          to="/tasks"
+          className={`flex flex-col items-center ${
+            location.pathname === "/tasks" ? "text-yellow-400" : "text-white"
+          }`}
+          onClick={handleVibration}
+        >
+          <span className="text-2xl">📋</span>
+          <span className="text-sm">Tasks</span>
+        </Link>
+        <Link
+          to="/profile"
+          className={`flex flex-col items-center ${
+            location.pathname === "/profile" ? "text-yellow-400" : "text-white"
+          }`}
+          onClick={handleVibration}
+        >
+          <span className="text-2xl">👤</span>
+          <span className="text-sm">Profile</span>
+        </Link>
+      </div>
+    </nav>
   );
 };
+
+// const BottomNav = () => {
+//   const location = useLocation();
+
+//   return (
+//     <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-500 to-green-500 shadow-lg">
+//     <div className="flex justify-around items-center h-16">
+//       <Link
+//         to="/"
+//         className={`flex flex-col items-center ${
+//           location.pathname === "/" ? "text-yellow-400" : "text-white"
+//         }`}
+//       >
+//         <span className="text-2xl">🎮</span>
+//         <span className="text-sm">Game</span>
+//       </Link>
+//       <Link
+//         to="/shop"
+//         className={`flex flex-col items-center ${
+//           location.pathname === "/shop" ? "text-yellow-400" : "text-white"
+//         }`}
+//       >
+//         <span className="text-2xl">🛒</span>
+//         <span className="text-sm">Shop</span>
+//       </Link>
+//       <Link
+//         to="/tasks"
+//         className={`flex flex-col items-center ${
+//           location.pathname === "/tasks" ? "text-yellow-400" : "text-white"
+//         }`}
+//       >
+//         <span className="text-2xl">📋</span>
+//         <span className="text-sm">Tasks</span>
+//       </Link>
+//       <Link
+//         to="/profile"
+//         className={`flex flex-col items-center ${
+//           location.pathname === "/profile" ? "text-yellow-400" : "text-white"
+//         }`}
+//       >
+//         <span className="text-2xl">👤</span>
+//         <span className="text-sm">Profile</span>
+//       </Link>
+//     </div>
+//   </nav>
+//   );
+// };
 
 
 
