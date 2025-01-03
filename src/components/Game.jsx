@@ -19,6 +19,9 @@ const Game = () => {
   // Handle the tap event
   const handleTap = async () => {
     // Prevent overlapping API calls
+
+    triggerHapticFeedback();
+    
     if (isApiCallInProgress) return;
 
     setCombo((prevCombo) => Math.min(5, prevCombo + 1)); // Increment combo
@@ -40,6 +43,14 @@ const Game = () => {
       setIsApiCallInProgress(false); // Allow further API calls
     }
   };
+
+    // Haptic feedback function
+    const triggerHapticFeedback = () => {
+      if (navigator.vibrate) {
+        navigator.vibrate(50); // Vibrate for 50 milliseconds
+      }
+    };
+  
 
   // Animate Bitcoin (rotate and scale)
   const animateBitcoin = () => {
